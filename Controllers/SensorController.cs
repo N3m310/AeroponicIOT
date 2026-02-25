@@ -30,10 +30,16 @@ public class SensorController : ControllerBase
     {
         try
         {
+            if (sensorData == null || string.IsNullOrWhiteSpace(sensorData.MacAddress))
+            {
+                _logger.LogWarning("Invalid sensor data received");
+                return BadRequest("Invalid sensor data");
+            }
+
             // Find device by MAC address
             var device = await _context.Devices
                 .Include(d => d.Crop)
-                .ThenInclude(c => c.CropStages)
+                .ThenInclude(c => (c ?? new Crop()).CropStages)
                 .FirstOrDefaultAsync(d => d.MacAddress == sensorData.MacAddress);
 
             if (device == null)
@@ -65,7 +71,7 @@ public class SensorController : ControllerBase
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Sensor data received from device {DeviceName} ({MacAddress})",
-                device.Name, device.MacAddress);
+                device.Name ?? "Unknown", device.MacAddress ?? "Unknown");
 
             return Ok(new { message = "Sensor data received successfully" });
         }

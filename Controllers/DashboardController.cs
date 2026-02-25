@@ -106,17 +106,26 @@ public class DashboardController : ControllerBase
                 .Select(d => d.SensorLogs.First())
                 .ToList();
 
-            var avgPh = latestSensors.Any(s => s.Ph.HasValue)
-                ? latestSensors.Where(s => s.Ph.HasValue).Average(s => s.Ph.Value)
-                : 0.0m;
+            var avgPh = latestSensors
+                .Select(s => s.Ph)
+                .Where(v => v.HasValue)
+                .Select(v => v!.Value)
+                .DefaultIfEmpty(0.0m)
+                .Average();
 
-            var avgTds = latestSensors.Any(s => s.Tds.HasValue)
-                ? latestSensors.Where(s => s.Tds.HasValue).Average(s => s.Tds.Value)
-                : 0.0;
+            var avgTds = latestSensors
+                .Select(s => s.Tds)
+                .Where(v => v.HasValue)
+                .Select(v => v!.Value)
+                .DefaultIfEmpty(0.0)
+                .Average();
 
-            var avgTemp = latestSensors.Any(s => s.WaterTemperature.HasValue)
-                ? latestSensors.Where(s => s.WaterTemperature.HasValue).Average(s => s.WaterTemperature.Value)
-                : 0.0;
+            var avgTemp = latestSensors
+                .Select(s => s.WaterTemperature)
+                .Where(v => v.HasValue)
+                .Select(v => v!.Value)
+                .DefaultIfEmpty(0.0)
+                .Average();
 
             // Calculate system health percentage
             var activeDevices = devices.Count(d => d.IsActive);
