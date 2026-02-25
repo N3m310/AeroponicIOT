@@ -18,9 +18,4 @@
     <PackageReference Include="MailKit" Version="4.7.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="Migrations\**" />
-    <None Include="Migrations\**" />
-  </ItemGroup>
-
 </Project>

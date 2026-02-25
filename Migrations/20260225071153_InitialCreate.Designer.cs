@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AeroponicIOT.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260225030054_AddUserIdToDevices")]
-    partial class AddUserIdToDevices
+    [Migration("20260225071153_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -104,6 +104,89 @@ namespace AeroponicIOT.Migrations
                     b.HasIndex("DeviceId");
 
                     b.ToTable("alerts");
+                });
+
+            modelBuilder.Entity("AeroponicIOT.Models.AutomationRule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("action");
+
+                    b.Property<int>("ActuatorType")
+                        .HasColumnType("int")
+                        .HasColumnName("actuator_type");
+
+                    b.Property<string>("ConditionOperator")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("condition_operator");
+
+                    b.Property<string>("ConditionParameter")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("condition_parameter");
+
+                    b.Property<decimal?>("ConditionValue")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("condition_value");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("int")
+                        .HasColumnName("device_id");
+
+                    b.Property<int?>("DurationMinutes")
+                        .HasColumnType("int")
+                        .HasColumnName("duration_minutes");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime?>("LastExecuted")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("last_executed");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int")
+                        .HasColumnName("priority");
+
+                    b.Property<string>("RuleName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("rule_name");
+
+                    b.Property<int>("RuleType")
+                        .HasColumnType("int")
+                        .HasColumnName("rule_type");
+
+                    b.Property<string>("ScheduleDays")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("schedule_days");
+
+                    b.Property<TimeOnly?>("ScheduleTime")
+                        .HasColumnType("time")
+                        .HasColumnName("schedule_time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("automation_rules");
                 });
 
             modelBuilder.Entity("AeroponicIOT.Models.Crop", b =>
@@ -409,6 +492,17 @@ namespace AeroponicIOT.Migrations
                         .WithMany()
                         .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("AeroponicIOT.Models.AutomationRule", b =>
+                {
+                    b.HasOne("AeroponicIOT.Models.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Device");
                 });
