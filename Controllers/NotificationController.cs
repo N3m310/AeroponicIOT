@@ -1,9 +1,9 @@
-using HydroponicIOT.Services.Notifications;
+using AeroponicIOT.Services.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace HydroponicIOT.Controllers;
+namespace AeroponicIOT.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

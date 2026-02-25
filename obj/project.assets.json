@@ -3842,11 +3842,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\drago\\Desktop\\Studies\\HydroponicIOT\\HydroponicIOT.csproj",
-      "projectName": "HydroponicIOT",
-      "projectPath": "C:\\Users\\drago\\Desktop\\Studies\\HydroponicIOT\\HydroponicIOT.csproj",
+      "projectUniqueName": "C:\\Users\\drago\\Desktop\\Studies\\AeroponicIOT\\AeroponicIOT.csproj",
+      "projectName": "AeroponicIOT",
+      "projectPath": "C:\\Users\\drago\\Desktop\\Studies\\AeroponicIOT\\AeroponicIOT.csproj",
       "packagesPath": "C:\\Users\\drago\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\drago\\Desktop\\Studies\\HydroponicIOT\\obj\\",
+      "outputPath": "C:\\Users\\drago\\Desktop\\Studies\\AeroponicIOT\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\drago\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -4358,7 +4358,7 @@
       "code": "NU1603",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "HydroponicIOT depends on MQTTnet (>= 4.3.1.1533) but MQTTnet 4.3.1.1533 was not found. MQTTnet 4.3.2.930 was resolved instead.",
+      "message": "AeroponicIOT depends on MQTTnet (>= 4.3.1.1533) but MQTTnet 4.3.1.1533 was not found. MQTTnet 4.3.2.930 was resolved instead.",
       "libraryId": "MQTTnet",
       "targetGraphs": [
         "net10.0"

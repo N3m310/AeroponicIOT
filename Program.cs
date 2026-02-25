@@ -1,6 +1,6 @@
-using HydroponicIOT.Data;
-using HydroponicIOT.Services.Mqtt;
-using HydroponicIOT.Services.Notifications;
+using AeroponicIOT.Data;
+using AeroponicIOT.Services.Mqtt;
+using AeroponicIOT.Services.Notifications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

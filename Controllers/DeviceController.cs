@@ -1,11 +1,11 @@
-using HydroponicIOT.Data;
-using HydroponicIOT.DTOs;
-using HydroponicIOT.Models;
+using AeroponicIOT.Data;
+using AeroponicIOT.DTOs;
+using AeroponicIOT.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace HydroponicIOT.Controllers;
+namespace AeroponicIOT.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

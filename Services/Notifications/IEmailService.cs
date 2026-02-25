@@ -1,4 +1,4 @@
-namespace HydroponicIOT.Services.Notifications;
+namespace AeroponicIOT.Services.Notifications;
 
 /// <summary>
 /// Interface for email sending functionality

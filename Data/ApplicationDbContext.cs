@@ -1,7 +1,7 @@
-using HydroponicIOT.Models;
+using AeroponicIOT.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HydroponicIOT.Data;
+namespace AeroponicIOT.Data;
 
 public class ApplicationDbContext : DbContext
 {

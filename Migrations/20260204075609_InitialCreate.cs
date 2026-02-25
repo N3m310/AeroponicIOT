@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace HydroponicIOT.Migrations
+namespace AeroponicIOT.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -208,8 +208,8 @@ namespace HydroponicIOT.Migrations
                 columns: new[] { "Id", "CreatedAt", "CropId", "Description", "IsActive", "LastSeen", "MacAddress", "Name", "UserId" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 2, 4, 7, 56, 9, 332, DateTimeKind.Utc).AddTicks(7591), 1, "Main hydroponic system for lettuce", true, null, "AA:BB:CC:DD:EE:01", "Hydroponic Unit 1", null },
-                    { 2, new DateTime(2026, 2, 4, 7, 56, 9, 332, DateTimeKind.Utc).AddTicks(7836), 1, "Secondary hydroponic system", true, null, "AA:BB:CC:DD:EE:02", "Hydroponic Unit 2", null }
+                    { 1, new DateTime(2026, 2, 4, 7, 56, 9, 332, DateTimeKind.Utc).AddTicks(7591), 1, "Main aeroponic system for lettuce", true, null, "AA:BB:CC:DD:EE:01", "Aeroponic Unit 1", null },
+                    { 2, new DateTime(2026, 2, 4, 7, 56, 9, 332, DateTimeKind.Utc).AddTicks(7836), 1, "Secondary aeroponic system", true, null, "AA:BB:CC:DD:EE:02", "Aeroponic Unit 2", null }
                 });
 
             migrationBuilder.CreateIndex(

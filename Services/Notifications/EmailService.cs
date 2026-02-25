@@ -2,7 +2,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 
-namespace HydroponicIOT.Services.Notifications;
+namespace AeroponicIOT.Services.Notifications;
 
 /// <summary>
 /// Email service implementation using MailKit/SMTP

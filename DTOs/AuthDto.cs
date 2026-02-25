@@ -1,4 +1,4 @@
-namespace HydroponicIOT.DTOs;
+namespace AeroponicIOT.DTOs;
 
 /// <summary>
 /// Request model for user login

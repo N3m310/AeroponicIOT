@@ -1,6 +1,6 @@
-using HydroponicIOT.Models;
+using AeroponicIOT.Models;
 
-namespace HydroponicIOT.DTOs;
+namespace AeroponicIOT.DTOs;
 
 public class ActuatorControlDto
 {

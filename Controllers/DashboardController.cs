@@ -1,11 +1,11 @@
-using HydroponicIOT.Data;
-using HydroponicIOT.DTOs;
-using HydroponicIOT.Models;
+using AeroponicIOT.Data;
+using AeroponicIOT.DTOs;
+using AeroponicIOT.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace HydroponicIOT.Controllers;
+namespace AeroponicIOT.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -108,7 +108,7 @@ public class DashboardController : ControllerBase
 
             var avgPh = latestSensors.Any(s => s.Ph.HasValue)
                 ? latestSensors.Where(s => s.Ph.HasValue).Average(s => s.Ph.Value)
-                : 0.0;
+                : 0.0m;
 
             var avgTds = latestSensors.Any(s => s.Tds.HasValue)
                 ? latestSensors.Where(s => s.Tds.HasValue).Average(s => s.Tds.Value)

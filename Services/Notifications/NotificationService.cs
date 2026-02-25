@@ -1,8 +1,8 @@
-using HydroponicIOT.Data;
-using HydroponicIOT.Models;
+using AeroponicIOT.Data;
+using AeroponicIOT.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HydroponicIOT.Services.Notifications;
+namespace AeroponicIOT.Services.Notifications;
 
 /// <summary>
 /// Notification service for sending notifications to users via multiple channels

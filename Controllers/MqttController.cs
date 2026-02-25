@@ -1,7 +1,7 @@
-using HydroponicIOT.Services.Mqtt;
+using AeroponicIOT.Services.Mqtt;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HydroponicIOT.Controllers;
+namespace AeroponicIOT.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

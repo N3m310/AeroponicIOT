@@ -1,4 +1,4 @@
-namespace HydroponicIOT.Services.Mqtt;
+namespace AeroponicIOT.Services.Mqtt;
 
 /// <summary>
 /// Interface for MQTT broker functionality

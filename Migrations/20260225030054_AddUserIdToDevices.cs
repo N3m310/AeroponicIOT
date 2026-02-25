@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace HydroponicIOT.Migrations
+namespace AeroponicIOT.Migrations
 {
     /// <inheritdoc />
     public partial class AddUserIdToDevices : Migration

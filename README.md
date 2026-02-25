@@ -1,6 +1,6 @@
 # Smart Farm IoT Monitoring and Control System
 
-A comprehensive IoT system for monitoring and controlling hydroponic farming environments using ASP.NET Core Web API and a modern web dashboard.
+A comprehensive IoT system for monitoring and controlling aeroponic farming environments using ASP.NET Core Web API and a modern web dashboard.
 
 ## Features
 
@@ -36,7 +36,7 @@ A comprehensive IoT system for monitoring and controlling hydroponic farming env
 ### Installation & Run
 
 ```bash
-cd HydroponicIOT
+cd AeroponicIOT
 dotnet restore
 dotnet run
 ```
@@ -307,7 +307,7 @@ Access real-time and historical sensor data visualizations at `http://localhost:
 
 1. **pH Level Trend** - Tracks water chemistry over time
 2. **TDS (Nutrient) Level** - Monitors nutrient concentration in ppm
-3. **Water Temperature** - Shows thermal conditions in the hydroponic system
+3. **Water Temperature** - Shows thermal conditions in the aeroponic system
 4. **Air Humidity** - Displays environmental humidity levels
 5. **Combined Sensors** - Multi-axis view of all parameters for correlation analysis
 
@@ -393,7 +393,7 @@ Access automation at `http://localhost:5062/automation.html`
 ## Testing the API
 
 ### Using VS Code REST Client
-Use the included `HydroponicIOT.http` file with the REST Client extension.
+Use the included `AeroponicIOT.http` file with the REST Client extension.
 
 ### Sample Request - Send Sensor Data
 ```json
@@ -424,7 +424,7 @@ curl -X POST http://localhost:5062/api/notification/test-email \
 ## Database
 
 ### Configuration
-- Default: SQLite (`HydroponicIOT.db`)
+- Default: SQLite (`AeroponicIOT.db`)
 - Custom database: Update `appsettings.json` and `Program.cs`
 
 ### Main Tables
@@ -445,7 +445,7 @@ curl -X POST http://localhost:5062/api/notification/test-email \
 | Issue | Solution |
 |-------|----------|
 | Port already in use | Change port in `Properties/launchSettings.json` |
-| Database issues | Delete `HydroponicIOT.db` and restart (auto-recreated) |
+| Database issues | Delete `AeroponicIOT.db` and restart (auto-recreated) |
 | Build errors | Run `dotnet clean && dotnet build` |
 | .NET version | Verify with `dotnet --version` (requires 8.x.x) |
 
@@ -459,8 +459,8 @@ API available at `http://localhost:5062`, SQL Server at `1433`
 
 ### Manual Docker Build
 ```bash
-docker build -t hydroponiciot:latest .
-docker run -e ConnectionStrings__DefaultConnection="Server=<host>;Database=HydroponicIOT;User Id=sa;Password=Your_password123;" -p 5062:80 hydroponiciot:latest
+docker build -t aeroponiciot:latest .
+docker run -e ConnectionStrings__DefaultConnection="Server=<host>;Database=AeroponicIOT;User Id=sa;Password=Your_password123;" -p 5062:80 aeroponiciot:latest
 ```
 
 ## Security Notes

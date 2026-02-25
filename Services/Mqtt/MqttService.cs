@@ -5,7 +5,7 @@ using MQTTnet.Protocol;
 using MQTTnet.Server;
 using System.Text;
 
-namespace HydroponicIOT.Services.Mqtt;
+namespace AeroponicIOT.Services.Mqtt;
 
 /// <summary>
 /// MQTT broker service for device communication

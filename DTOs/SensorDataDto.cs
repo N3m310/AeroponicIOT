@@ -1,4 +1,4 @@
-namespace HydroponicIOT.DTOs;
+namespace AeroponicIOT.DTOs;
 
 public class SensorDataDto
 {

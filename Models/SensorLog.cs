@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HydroponicIOT.Models;
+namespace AeroponicIOT.Models;
 
 [Table("sensor_logs")]
 public class SensorLog

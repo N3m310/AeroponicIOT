@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "CfSX/DCmahk=",
+  "dgSpecHash": "b4BZ4d/OHVI=",
   "success": true,
-  "projectFilePath": "C:\\Users\\drago\\Desktop\\Studies\\HydroponicIOT\\HydroponicIOT.csproj",
+  "projectFilePath": "C:\\Users\\drago\\Desktop\\Studies\\AeroponicIOT\\AeroponicIOT.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\drago\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\drago\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",
@@ -72,10 +72,10 @@
     {
       "code": "NU1603",
       "level": "Warning",
-      "message": "HydroponicIOT depends on MQTTnet (>= 4.3.1.1533) but MQTTnet 4.3.1.1533 was not found. MQTTnet 4.3.2.930 was resolved instead.",
-      "projectPath": "C:\\Users\\drago\\Desktop\\Studies\\HydroponicIOT\\HydroponicIOT.csproj",
+      "message": "AeroponicIOT depends on MQTTnet (>= 4.3.1.1533) but MQTTnet 4.3.1.1533 was not found. MQTTnet 4.3.2.930 was resolved instead.",
+      "projectPath": "C:\\Users\\drago\\Desktop\\Studies\\AeroponicIOT\\AeroponicIOT.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\drago\\Desktop\\Studies\\HydroponicIOT\\HydroponicIOT.csproj",
+      "filePath": "C:\\Users\\drago\\Desktop\\Studies\\AeroponicIOT\\AeroponicIOT.csproj",
       "libraryId": "MQTTnet",
       "targetGraphs": [
         "net10.0"
@@ -85,9 +85,9 @@
       "code": "NU1903",
       "level": "Warning",
       "message": "Package 'MimeKit' 4.7.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-gmc6-fwg3-75m5",
-      "projectPath": "C:\\Users\\drago\\Desktop\\Studies\\HydroponicIOT\\HydroponicIOT.csproj",
+      "projectPath": "C:\\Users\\drago\\Desktop\\Studies\\AeroponicIOT\\AeroponicIOT.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\drago\\Desktop\\Studies\\HydroponicIOT\\HydroponicIOT.csproj",
+      "filePath": "C:\\Users\\drago\\Desktop\\Studies\\AeroponicIOT\\AeroponicIOT.csproj",
       "libraryId": "MimeKit",
       "targetGraphs": [
         "net10.0"

@@ -17,7 +17,7 @@ services:
       - "5062:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=mssql;Database=HydroponicIOT;User Id=sa;Password=Your_password123;
+      - ConnectionStrings__DefaultConnection=Server=mssql;Database=AeroponicIOT;User Id=sa;Password=Your_password123;
     depends_on:
       - mssql
     restart: unless-stopped

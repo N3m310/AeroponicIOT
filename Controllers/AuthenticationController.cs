@@ -1,6 +1,6 @@
-using HydroponicIOT.Data;
-using HydroponicIOT.DTOs;
-using HydroponicIOT.Models;
+using AeroponicIOT.Data;
+using AeroponicIOT.DTOs;
+using AeroponicIOT.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace HydroponicIOT.Controllers;
+namespace AeroponicIOT.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -216,8 +216,8 @@ public class AuthenticationController : ControllerBase
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
-            Issuer = "HydroponicIOT",
-            Audience = "HydroponicIOT",
+            Issuer = "AeroponicIOT",
+            Audience = "AeroponicIOT",
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature)

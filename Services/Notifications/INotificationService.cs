@@ -1,4 +1,4 @@
-namespace HydroponicIOT.Services.Notifications;
+namespace AeroponicIOT.Services.Notifications;
 
 public enum NotificationType
 {
