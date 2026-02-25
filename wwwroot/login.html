@@ -146,46 +146,6 @@
             color: #999;
             font-size: 12px;
         }
-
-        .register-form {
-            display: none;
-        }
-
-        .form-group-half {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .role-select {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 10px 0;
-        }
-
-        .role-option {
-            padding: 10px 15px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .role-option:hover {
-            border-color: #667eea;
-        }
-
-        .role-option.selected {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        input[type="hidden"] {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -216,70 +176,13 @@
             </form>
 
             <div class="auth-toggle">
-                Don't have an account? <a onclick="toggleForms()">Register here</a>
-            </div>
-        </div>
-
-        <!-- Register Form -->
-        <div id="registerForm" class="register-form">
-            <div class="auth-header">
-                <h1>🌱 Smart Farm IoT</h1>
-                <p>Create a new account to get started.</p>
-            </div>
-
-            <div class="error-message" id="registerError"></div>
-            <div class="success-message" id="registerSuccess"></div>
-
-            <form id="registerSubmit">
-                <div class="form-group">
-                    <label for="regUsername">Username</label>
-                    <input type="text" id="regUsername" placeholder="Choose a username" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="regEmail">Email</label>
-                    <input type="email" id="regEmail" placeholder="Enter your email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="regPassword">Password</label>
-                    <input type="password" id="regPassword" placeholder="Create a password" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Role</label>
-                    <div class="role-select">
-                        <div class="role-option selected" onclick="selectRole('Farmer', this)">Farmer</div>
-                        <div class="role-option" onclick="selectRole('Administrator', this)">Admin</div>
-                    </div>
-                    <input type="hidden" id="regRole" value="Farmer">
-                </div>
-
-                <button type="submit" class="btn btn-primary">Register</button>
-                <div class="loading" id="registerLoading">Creating account...</div>
-            </form>
-
-            <div class="auth-toggle">
-                Already have an account? <a onclick="toggleForms()">Login here</a>
+                Don't have an account? <a href="register.html">Register here</a>
             </div>
         </div>
     </div>
 
     <script>
         const API_URL = 'http://localhost:5062/api';
-
-        function toggleForms() {
-            document.getElementById('loginForm').style.display = 
-                document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
-            document.getElementById('registerForm').style.display = 
-                document.getElementById('registerForm').style.display === 'none' ? 'block' : 'none';
-        }
-
-        function selectRole(role, element) {
-            document.querySelectorAll('.role-option').forEach(e => e.classList.remove('selected'));
-            element.classList.add('selected');
-            document.getElementById('regRole').value = role;
-        }
 
         // Check if already logged in
         window.addEventListener('load', () => {
@@ -323,42 +226,6 @@
                 console.error('Login error:', error);
             } finally {
                 document.getElementById('loginLoading').style.display = 'none';
-            }
-        });
-
-        // Register
-        document.getElementById('registerSubmit').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('regUsername').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const role = document.getElementById('regRole').value;
-
-            document.getElementById('registerLoading').style.display = 'block';
-            document.getElementById('registerError').style.display = 'none';
-
-            try {
-                const response = await fetch(`${API_URL}/authentication/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, email, password, role })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showSuccess('registerSuccess', 'Account created successfully! Please login.');
-                    setTimeout(() => toggleForms(), 2000);
-                } else {
-                    showError('registerError', data.message || 'Registration failed');
-                }
-            } catch (error) {
-                showError('registerError', 'Connection error. Please try again.');
-                console.error('Register error:', error);
-            } finally {
-                document.getElementById('registerLoading').style.display = 'none';
             }
         });
 
