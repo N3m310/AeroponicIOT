@@ -1,0 +1,58 @@
+@baseUrl = http://localhost:5062/api
+
+### Send sensor data from Device 1 (Lettuce Unit)
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "macAddress": "AA:BB:CC:DD:EE:01",
+  "ph": 6.2,
+  "tds": 950,
+  "waterTemperature": 22.5,
+  "airHumidity": 68.0
+}
+
+### Send sensor data from Device 2 (Lettuce Unit)
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "macAddress": "AA:BB:CC:DD:EE:02",
+  "ph": 5.8,
+  "tds": 1100,
+  "waterTemperature": 23.1,
+  "airHumidity": 72.0
+}
+
+### Get dashboard data
+GET {{baseUrl}}/api/dashboard/latest
+
+### Get device history (24 hours)
+GET {{baseUrl}}/api/dashboard/history/1?hours=24
+
+### Manual control - Turn pump ON
+POST {{baseUrl}}/api/actuator/control
+Content-Type: application/json
+
+{
+  "macAddress": "AA:BB:CC:DD:EE:01",
+  "actuatorType": 0,
+  "action": "ON",
+  "controlType": 1,
+  "reason": "Manual pump activation for testing"
+}
+
+### Manual control - Turn fan OFF
+POST {{baseUrl}}/api/actuator/control
+Content-Type: application/json
+
+{
+  "macAddress": "AA:BB:CC:DD:EE:01",
+  "actuatorType": 1,
+  "action": "OFF",
+  "controlType": 1,
+  "reason": "Manual fan deactivation"
+}
+
+### Get actuator logs for device 1
+GET {{baseUrl}}/api/actuator/logs/1?days=7

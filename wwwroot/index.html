@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Farm IoT Dashboard</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <header>
+        <h1>Smart Farm IoT Monitoring System</h1>
+        <div class="header-controls">
+            <button id="devicesBtn" class="btn-primary" onclick="goToDevices()">🔧 Device Management</button>
+            <button id="automationBtn" class="btn-primary" onclick="goToAutomation()">⚙️ Automation</button>
+            <button id="chartsBtn" class="btn-primary" onclick="goToCharts()">📊 Analytics</button>
+            <button id="refreshBtn" class="btn-primary">Refresh Data</button>
+            <span id="lastUpdate">Last updated: Never</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="dashboard-grid">
+            <!-- Key Performance Indicators -->
+            <section class="card kpi-section">
+                <h2>Key Performance Indicators</h2>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-label">System Health</span>
+                            <span class="kpi-value" id="systemHealth">--</span>
+                        </div>
+                        <div class="kpi-bar">
+                            <div class="kpi-progress" id="systemHealthBar"></div>
+                        </div>
+                        <span class="kpi-subtitle" id="systemHealthStatus">Calculating...</span>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-label">Avg pH Level</span>
+                            <span class="kpi-value" id="avgPh">--</span>
+                        </div>
+                        <div class="kpi-subtitle" id="phStatus">No data</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-label">Avg TDS (ppm)</span>
+                            <span class="kpi-value" id="avgTds">--</span>
+                        </div>
+                        <div class="kpi-subtitle" id="tdsStatus">No data</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-label">Avg Temperature</span>
+                            <span class="kpi-value" id="avgTemp">--°C</span>
+                        </div>
+                        <div class="kpi-subtitle" id="tempStatus">No data</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Overview -->
+            <section class="card overview-card">
+                <h2>System Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalDevices">0</span>
+                        <span class="stat-label">Total Devices</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="activeDevices">0</span>
+                        <span class="stat-label">Active Devices</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="activeAlerts">0</span>
+                        <span class="stat-label">Active Alerts</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Device Status -->
+            <section class="card devices-card">
+                <h2>Device Status & Health</h2>
+                <div class="device-health-legend">
+                    <span class="legend-item"><span class="legend-dot healthy"></span>Healthy</span>
+                    <span class="legend-item"><span class="legend-dot warning"></span>Warning</span>
+                    <span class="legend-item"><span class="legend-dot critical"></span>Critical</span>
+                    <span class="legend-item"><span class="legend-dot offline"></span>Offline</span>
+                </div>
+                <div id="devicesContainer" class="devices-grid">
+                    <!-- Devices will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Active Alerts -->
+            <section class="card alerts-card">
+                <h2>Active Alerts</h2>
+                <div id="alertsContainer" class="alerts-list">
+                    <!-- Alerts will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Manual Control -->
+            <section class="card control-card">
+                <h2>Manual Control</h2>
+                <form id="controlForm" class="control-form">
+                    <div class="form-group">
+                        <label for="deviceSelect">Device:</label>
+                        <select id="deviceSelect" required>
+                            <option value="">Select Device</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="actuatorSelect">Actuator:</label>
+                        <select id="actuatorSelect" required>
+                            <option value="">Select Actuator</option>
+                            <option value="0">Pump</option>
+                            <option value="1">Fan</option>
+                            <option value="2">Light</option>
+                            <option value="3">Heater</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="actionSelect">Action:</label>
+                        <select id="actionSelect" required>
+                            <option value="">Select Action</option>
+                            <option value="ON">Turn ON</option>
+                            <option value="OFF">Turn OFF</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reasonInput">Reason:</label>
+                        <input type="text" id="reasonInput" placeholder="Optional reason">
+                    </div>
+                    <button type="submit" class="btn-primary">Send Command</button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <!-- Device Details Modal -->
+    <div id="deviceModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="deviceModalTitle">Device Details</h2>
+            <div id="deviceModalContent">
+                <!-- Device details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
