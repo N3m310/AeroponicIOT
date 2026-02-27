@@ -22,6 +22,9 @@ public class Device
     [Column("current_crop_id")]
     public int? CurrentCropId { get; set; }
 
+    [Column("garden_id")]
+    public int? GardenId { get; set; }
+
     public int? UserId { get; set; }
 
     [Column("status")]
@@ -52,6 +55,9 @@ public class Device
     public Crop? Crop { get; set; }
 
     public User? User { get; set; }
+
+    [ForeignKey("GardenId")]
+    public Garden? Garden { get; set; }
 
     public ICollection<SensorLog> SensorLogs { get; set; } = new List<SensorLog>();
     public ICollection<ActuatorLog> ActuatorLogs { get; set; } = new List<ActuatorLog>();

@@ -28,6 +28,10 @@ public class SensorLog
     [Column("humidity")]
     public int? Humidity { get; set; }
 
+    // Optional light intensity (e.g., lux) for EC / light monitoring features.
+    [Column("light_intensity")]
+    public int? LightIntensity { get; set; }
+
     // For backward compatibility
     [NotMapped]
     public double? Tds => TdsPpm;
@@ -37,6 +41,9 @@ public class SensorLog
 
     [NotMapped]
     public double? AirHumidity => Humidity;
+
+    [NotMapped]
+    public double? Light => LightIntensity;
 
     // Foreign key to Device
     public Device Device { get; set; } = null!;

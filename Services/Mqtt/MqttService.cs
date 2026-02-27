@@ -1,9 +1,12 @@
+using AeroponicIOT.DTOs;
+using AeroponicIOT.Services.Sensors;
 using MQTTnet;
 using MQTTnet.Adapter;
 using MQTTnet.Diagnostics;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
 using System.Text;
+using System.Text.Json;
 
 namespace AeroponicIOT.Services.Mqtt;
 
@@ -15,15 +18,20 @@ public class MqttService : IMqttService, IDisposable
 {
     private readonly ILogger<MqttService> _logger;
     private readonly IConfiguration _configuration;
+    private readonly IServiceScopeFactory _scopeFactory;
     private MqttServer? _mqttServer;
     private bool _isRunning;
 
     public bool IsRunning => _isRunning;
 
-    public MqttService(ILogger<MqttService> logger, IConfiguration configuration)
+    public MqttService(
+        ILogger<MqttService> logger,
+        IConfiguration configuration,
+        IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
         _configuration = configuration;
+        _scopeFactory = scopeFactory;
     }
 
     /// <summary>
@@ -56,6 +64,9 @@ public class MqttService : IMqttService, IDisposable
                 _logger.LogInformation("MQTT Client disconnected: {ClientId}", e.ClientId);
                 await Task.CompletedTask;
             };
+
+            // Handle incoming published messages (for sensor data ingestion)
+            _mqttServer.InterceptingPublishAsync += OnInterceptingPublishAsync;
 
             await _mqttServer.StartAsync();
             _isRunning = true;
@@ -126,6 +137,78 @@ public class MqttService : IMqttService, IDisposable
 
     public void Dispose()
     {
-        _mqttServer?.Dispose();
+        if (_mqttServer != null)
+        {
+            _mqttServer.InterceptingPublishAsync -= OnInterceptingPublishAsync;
+            _mqttServer.Dispose();
+        }
+    }
+
+    private async Task OnInterceptingPublishAsync(InterceptingPublishEventArgs args)
+    {
+        try
+        {
+            var topic = args.ApplicationMessage.Topic;
+            if (string.IsNullOrWhiteSpace(topic))
+            {
+                return;
+            }
+
+            // Expect sensor messages on: devices/{macAddress}/sensor
+            if (!topic.StartsWith("devices/", StringComparison.OrdinalIgnoreCase) ||
+                !topic.EndsWith("/sensor", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var segments = topic.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length < 3)
+            {
+                return;
+            }
+
+            var macAddress = segments[1];
+
+            var payloadBytes = args.ApplicationMessage.PayloadSegment;
+            if (payloadBytes.Count == 0)
+            {
+                return;
+            }
+
+            var json = Encoding.UTF8.GetString(payloadBytes);
+
+            SensorDataDto? sensorData;
+            try
+            {
+                sensorData = JsonSerializer.Deserialize<SensorDataDto>(json);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to deserialize MQTT sensor payload from topic {Topic}", topic);
+                return;
+            }
+
+            if (sensorData == null)
+            {
+                return;
+            }
+
+            // Ensure MAC from topic is applied if not present in payload.
+            if (string.IsNullOrWhiteSpace(sensorData.MacAddress))
+            {
+                sensorData.MacAddress = macAddress;
+            }
+
+            using var scope = _scopeFactory.CreateScope();
+            var ingestionService = scope.ServiceProvider.GetRequiredService<ISensorIngestionService>();
+
+            await ingestionService.ProcessSensorDataAsync(sensorData, CancellationToken.None);
+
+            _logger.LogInformation("Sensor data ingested via MQTT for device {MacAddress}", sensorData.MacAddress);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing MQTT sensor message");
+        }
     }
 }

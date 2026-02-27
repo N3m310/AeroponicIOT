@@ -19,6 +19,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Alert> Alerts { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<AutomationRule> AutomationRules { get; set; }
+    public DbSet<Garden> Gardens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,6 +35,12 @@ public class ApplicationDbContext : DbContext
             .HasOne(d => d.Crop)
             .WithMany(c => c.Devices)
             .HasForeignKey(d => d.CurrentCropId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Device>()
+            .HasOne(d => d.Garden)
+            .WithMany(g => g.Devices)
+            .HasForeignKey(d => d.GardenId)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Device>()

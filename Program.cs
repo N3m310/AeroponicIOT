@@ -1,6 +1,8 @@
 using AeroponicIOT.Data;
+using AeroponicIOT.Services.Automation;
 using AeroponicIOT.Services.Mqtt;
 using AeroponicIOT.Services.Notifications;
+using AeroponicIOT.Services.Sensors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -62,6 +64,12 @@ builder.Services.AddSingleton<IMqttService, MqttService>();
 // Add Notification Services
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// Sensor ingestion (shared by HTTP and MQTT)
+builder.Services.AddScoped<ISensorIngestionService, SensorIngestionService>();
+
+// Automation background service
+builder.Services.AddHostedService<AutomationBackgroundService>();
 
 var app = builder.Build();
 
