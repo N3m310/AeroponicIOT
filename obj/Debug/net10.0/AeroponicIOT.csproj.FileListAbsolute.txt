@@ -174,7 +174,6 @@ C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\vfzc4ef
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\z7iwfc1ken-{0}-2uxmwi2yqd-2uxmwi2yqd.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\8wzlgoae7g-{0}-v4hbj4fp6f-v4hbj4fp6f.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\rzwd9tmpp2-{0}-ib9cm64s7d-ib9cm64s7d.gz
-C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\r02sf6cks5-{0}-3butm90e61-3butm90e61.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\staticwebassets.build.json
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\staticwebassets.build.json.cache
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\staticwebassets.development.json
@@ -186,3 +185,6 @@ C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\refint\AeroponicIO
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\AeroponicIOT.pdb
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\AeroponicIOT.genruntimeconfig.cache
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\ref\AeroponicIOT.dll
+C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\6qs8fgldo3-{0}-44russtw4v-44russtw4v.gz
+C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\r02sf6cks5-{0}-g6un5zo69q-g6un5zo69q.gz
+C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\3vbb45sp49-{0}-q8b52vudva-q8b52vudva.gz
