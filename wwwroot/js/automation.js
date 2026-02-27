@@ -23,8 +23,8 @@ function checkAuthentication() {
     const header = document.getElementById('automationHeader');
     header.innerHTML = `
         <span>${username} <small>(${role})</small></span>
-        <button id="backBtn" class="btn-secondary" onclick="goBack()">← Back to Dashboard</button>
-        <button id="logoutBtn" class="btn-secondary">Logout</button>
+        <button id="backBtn" class="btn-secondary" onclick="goBack()">← Về trang tổng quan</button>
+        <button id="logoutBtn" class="btn-secondary">Đăng xuất</button>
     `;
     document.getElementById('logoutBtn').addEventListener('click', logout);
 }
@@ -56,7 +56,7 @@ async function loadDevices() {
             return;
         }
 
-        if (!response.ok) throw new Error('Failed to load devices');
+        if (!response.ok) throw new Error('Không thể tải thiết bị');
 
         const data = await response.json();
         const deviceSelect = document.getElementById('deviceSelect');
@@ -69,8 +69,8 @@ async function loadDevices() {
             deviceSelect.appendChild(option);
         });
     } catch (error) {
-        console.error('Error loading devices:', error);
-        showError('Failed to load devices');
+        console.error('Lỗi tải thiết bị:', error);
+        showError('Không thể tải thiết bị');
     }
 }
 
@@ -117,7 +117,7 @@ async function createRule(e) {
             .join(',');
 
         if (!scheduleTime || !durationMinutes || !days) {
-            showError('Please fill in schedule details');
+            showError('Vui lòng nhập đầy đủ thông tin lịch trình');
             return;
         }
 
@@ -134,7 +134,7 @@ async function createRule(e) {
         const durationMinutes = parseInt(document.getElementById('durationMinutes2').value);
 
         if (!conditionParameter || !conditionOperator || !conditionValue || !durationMinutes) {
-            showError('Please fill in threshold details');
+            showError('Vui lòng nhập đầy đủ thông tin ngưỡng');
             return;
         }
 
@@ -157,14 +157,14 @@ async function createRule(e) {
             return;
         }
 
-        if (!response.ok) throw new Error('Failed to create rule');
+        if (!response.ok) throw new Error('Không thể tạo luật');
 
-        showSuccess('Rule created successfully!');
+        showSuccess('Tạo luật thành công!');
         document.getElementById('newRuleForm').reset();
         loadRules();
     } catch (error) {
-        console.error('Error creating rule:', error);
-        showError('Failed to create rule');
+        console.error('Lỗi tạo luật:', error);
+        showError('Không thể tạo luật');
     }
 }
 
@@ -180,13 +180,13 @@ async function loadRules() {
             return;
         }
 
-        if (!response.ok) throw new Error('Failed to load rules');
+        if (!response.ok) throw new Error('Không thể tải luật');
 
         rules = await response.json();
         displayRules();
     } catch (error) {
-        console.error('Error loading rules:', error);
-        showError('Failed to load rules');
+        console.error('Lỗi tải luật:', error);
+        showError('Không thể tải luật');
     }
 }
 
@@ -198,7 +198,7 @@ function displayRules() {
     // Active rules
     const activeList = document.getElementById('activeRulesList');
     if (activeRules.length === 0) {
-        activeList.innerHTML = '<p>No active rules</p>';
+        activeList.innerHTML = '<p>Không có luật đang hoạt động</p>';
     } else {
         activeList.innerHTML = '';
         activeRules.forEach(rule => {
@@ -209,7 +209,7 @@ function displayRules() {
     // Inactive rules
     const inactiveList = document.getElementById('inactiveRulesList');
     if (inactiveRules.length === 0) {
-        inactiveList.innerHTML = '<p>No inactive rules</p>';
+        inactiveList.innerHTML = '<p>Không có luật không hoạt động</p>';
     } else {
         inactiveList.innerHTML = '';
         inactiveRules.forEach(rule => {
@@ -224,57 +224,57 @@ function createRuleCard(rule, isInactive = false) {
     card.className = 'rule-card';
     if (isInactive) card.classList.add('inactive');
 
-    const ruleTypeText = ['Schedule', 'Threshold', 'Timer'][rule.ruleType] || 'Unknown';
-    const actuatorText = ['Pump', 'Fan', 'Light', 'Heater'][rule.actuatorType];
+    const ruleTypeText = ['Lịch trình', 'Ngưỡng', 'Hẹn giờ'][rule.ruleType] || 'Không xác định';
+    const actuatorText = ['Bơm', 'Quạt', 'Đèn', 'Sưởi'][rule.actuatorType];
     const statusClass = rule.isActive ? 'active' : 'inactive';
-    const lastExecuted = rule.lastExecuted ? new Date(rule.lastExecuted).toLocaleString() : 'Never';
+    const lastExecuted = rule.lastExecuted ? new Date(rule.lastExecuted).toLocaleString() : 'Chưa từng';
 
     let conditionText = '';
     if (rule.ruleType === 0) {
         // Schedule
         const days = rule.scheduleDays.split(',').slice(0, 3).join(', ');
-        conditionText = `${rule.scheduleTime} on ${days}...`;
+        conditionText = `${rule.scheduleTime} vào ${days}...`;
     } else if (rule.ruleType === 1) {
         // Threshold
-        conditionText = `When ${rule.conditionParameter} ${rule.conditionOperator} ${rule.conditionValue}`;
+        conditionText = `Khi ${rule.conditionParameter} ${rule.conditionOperator} ${rule.conditionValue}`;
     }
 
     card.innerHTML = `
         <div class="rule-header">
             <h3>${rule.ruleName}</h3>
-            <span class="rule-status ${statusClass}">${rule.isActive ? '✓ Active' : '✕ Inactive'}</span>
+            <span class="rule-status ${statusClass}">${rule.isActive ? '✓ Hoạt động' : '✕ Không hoạt động'}</span>
         </div>
         <div class="rule-details">
             <div class="detail-item">
-                <span class="label">Type:</span>
+                <span class="label">Loại:</span>
                 <span class="value">${ruleTypeText}</span>
             </div>
             <div class="detail-item">
-                <span class="label">Actuator:</span>
+                <span class="label">Thiết bị chấp hành:</span>
                 <span class="value">${actuatorText}</span>
             </div>
             <div class="detail-item">
-                <span class="label">Action:</span>
+                <span class="label">Hành động:</span>
                 <span class="value">${rule.action}</span>
             </div>
             <div class="detail-item">
-                <span class="label">Condition:</span>
+                <span class="label">Điều kiện:</span>
                 <span class="value">${conditionText}</span>
             </div>
             <div class="detail-item">
-                <span class="label">Priority:</span>
+                <span class="label">Ưu tiên:</span>
                 <span class="value">${rule.priority}/10</span>
             </div>
             <div class="detail-item">
-                <span class="label">Last Executed:</span>
+                <span class="label">Lần thực thi gần nhất:</span>
                 <span class="value">${lastExecuted}</span>
             </div>
         </div>
         <div class="rule-actions">
             <button class="btn-small" onclick="toggleRuleStatus(${rule.id})">
-                ${rule.isActive ? '🔇 Disable' : '🔊 Enable'}
+                ${rule.isActive ? '🔇 Tắt' : '🔊 Bật'}
             </button>
-            <button class="btn-small danger" onclick="deleteRule(${rule.id})">🗑️ Delete</button>
+            <button class="btn-small danger" onclick="deleteRule(${rule.id})">🗑️ Xóa</button>
         </div>
     `;
 
@@ -294,19 +294,19 @@ async function toggleRuleStatus(ruleId) {
             return;
         }
 
-        if (!response.ok) throw new Error('Failed to toggle rule');
+        if (!response.ok) throw new Error('Không thể thay đổi trạng thái luật');
 
-        showSuccess('Rule updated');
+        showSuccess('Đã cập nhật luật');
         loadRules();
     } catch (error) {
-        console.error('Error toggling rule:', error);
-        showError('Failed to update rule');
+        console.error('Lỗi cập nhật trạng thái luật:', error);
+        showError('Không thể cập nhật luật');
     }
 }
 
 // Delete rule
 async function deleteRule(ruleId) {
-    if (!confirm('Are you sure you want to delete this rule?')) {
+    if (!confirm('Bạn có chắc chắn muốn xóa luật này?')) {
         return;
     }
 
@@ -321,13 +321,13 @@ async function deleteRule(ruleId) {
             return;
         }
 
-        if (!response.ok) throw new Error('Failed to delete rule');
+        if (!response.ok) throw new Error('Không thể xóa luật');
 
-        showSuccess('Rule deleted');
+        showSuccess('Đã xóa luật');
         loadRules();
     } catch (error) {
-        console.error('Error deleting rule:', error);
-        showError('Failed to delete rule');
+        console.error('Lỗi xóa luật:', error);
+        showError('Không thể xóa luật');
     }
 }
 

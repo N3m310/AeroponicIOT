@@ -1,7 +1,7 @@
 /* Device Management Styles */
 
 :root {
-    --primary-color: #2196F3;
+    --primary-color: #43a047;
     --success-color: #4CAF50;
     --danger-color: #f44336;
     --warning-color: #FF9800;
@@ -20,7 +20,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
     min-height: 100vh;
     padding: 2rem 1rem;
 }
@@ -40,7 +40,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
     color: white;
     font-size: 1.1rem;
 }
@@ -107,7 +107,7 @@ input[type="number"]:focus,
 select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+    box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.15);
 }
 
 /* Form Layout */
@@ -140,9 +140,9 @@ select:focus {
 }
 
 .btn-primary:hover {
-    background: #1976D2;
+    background: #2e7d32;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+    box-shadow: 0 5px 15px rgba(67, 160, 71, 0.3);
 }
 
 .btn-secondary {
@@ -175,7 +175,7 @@ select:focus {
 }
 
 .btn-small.edit:hover {
-    background: #1976D2;
+    background: #2e7d32;
 }
 
 .btn-small.delete {

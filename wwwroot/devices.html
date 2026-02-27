@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Management - Smart Farm IoT</title>
+    <title>Quản lý thiết bị - Smart Farm IoT</title>
     <link rel="stylesheet" href="css/devices.css">
 </head>
 <body>
@@ -13,48 +13,48 @@
         <div class="content">
         <!-- Add Device Section -->
         <section class="form-section">
-            <h2 class="section-title">Add New Device</h2>
+            <h2 class="section-title">Thêm thiết bị mới</h2>
             <form id="addDeviceForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="deviceName">Device Name:</label>
-                        <input type="text" id="deviceName" placeholder="e.g., Greenhouse-01" required>
+                        <label for="deviceName">Tên thiết bị:</label>
+                        <input type="text" id="deviceName" placeholder="ví dụ: Nhà-màng-01" required>
                     </div>
                     <div class="form-group">
-                        <label for="macAddress">MAC Address:</label>
+                        <label for="macAddress">Địa chỉ MAC:</label>
                         <input type="text" id="macAddress" placeholder="AA:BB:CC:DD:EE:FF" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="cropSelect">Assign Crop (Optional):</label>
+                        <label for="cropSelect">Gán cây trồng (tuỳ chọn):</label>
                         <select id="cropSelect">
-                            <option value="">No Crop Assigned</option>
+                            <option value="">Chưa gán cây trồng</option>
                         </select>
                     </div>
                 </div>
 
                 <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                    <button type="submit" class="btn-primary">➕ Add Device</button>
-                    <button type="reset" class="btn-secondary">Clear</button>
+                    <button type="submit" class="btn-primary">➕ Thêm thiết bị</button>
+                    <button type="reset" class="btn-secondary">Xóa trắng</button>
                 </div>
             </form>
         </section>
 
         <!-- Devices List Section -->
         <section class="devices-section">
-            <h2 class="section-title">Active Devices</h2>
+            <h2 class="section-title">Thiết bị đang hoạt động</h2>
             <div id="devicesGrid">
-                <p class="loading-text">Loading devices...</p>
+                <p class="loading-text">Đang tải thiết bị...</p>
             </div>
         </section>
 
         <!-- Inactive Devices Section -->
         <section class="devices-section">
-            <h2 class="section-title">Inactive Devices</h2>
+            <h2 class="section-title">Thiết bị không hoạt động</h2>
             <div id="inactiveDevicesGrid">
-                <p class="loading-text">Loading...</p>
+                <p class="loading-text">Đang tải...</p>
             </div>
         </section>
         </div>
@@ -63,32 +63,32 @@
         <div id="editModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    Edit Device
+                    Chỉnh sửa thiết bị
                     <span class="modal-close" onclick="closeEditModal()">&times;</span>
                 </div>
                 <form id="editDeviceForm">
                     <input type="hidden" id="editDeviceId">
                     <div class="form-group">
-                        <label for="editDeviceName">Device Name:</label>
+                        <label for="editDeviceName">Tên thiết bị:</label>
                         <input type="text" id="editDeviceName" required>
                     </div>
                     <div class="form-group">
-                        <label for="editCropSelect">Assign Crop:</label>
+                        <label for="editCropSelect">Gán cây trồng:</label>
                         <select id="editCropSelect">
-                            <option value="">No Crop Assigned</option>
+                            <option value="">Chưa gán cây trồng</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="editStatus">Status:</label>
+                        <label for="editStatus">Trạng thái:</label>
                         <select id="editStatus">
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                            <option value="Maintenance">Maintenance</option>
+                            <option value="Active">Hoạt động</option>
+                            <option value="Inactive">Không hoạt động</option>
+                            <option value="Maintenance">Bảo trì</option>
                         </select>
                     </div>
                     <div class="modal-actions">
-                        <button type="submit" class="btn-primary">💾 Save Changes</button>
-                        <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+                        <button type="submit" class="btn-primary">💾 Lưu thay đổi</button>
+                        <button type="button" class="btn-secondary" onclick="closeEditModal()">Hủy</button>
                     </div>
                 </form>
             </div>

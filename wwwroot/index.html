@@ -1,149 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Farm IoT Dashboard</title>
+    <title>Bảng điều khiển Smart Farm IoT</title>
     <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
-    <header>
-        <h1>Smart Farm IoT Monitoring System</h1>
-        <div class="header-controls">
-            <button id="devicesBtn" class="btn-primary" onclick="goToDevices()">🔧 Device Management</button>
-            <button id="automationBtn" class="btn-primary" onclick="goToAutomation()">⚙️ Automation</button>
-            <button id="chartsBtn" class="btn-primary" onclick="goToCharts()">📊 Analytics</button>
-            <button id="refreshBtn" class="btn-primary">Refresh Data</button>
-            <span id="lastUpdate">Last updated: Never</span>
+    <header class="app-header">
+        <div class="header-main">
+            <div class="title-wrap">
+                <h1>Quản lý chung khu vườn</h1>
+                <p>Dữ liệu thông minh cho vụ mùa bội thu.</p>
+            </div>
+            <div class="header-controls">
+                <button id="devicesBtn" class="btn-primary" onclick="goToDevices()">Thiết bị</button>
+                <button id="automationBtn" class="btn-primary" onclick="goToAutomation()">Tự động hóa</button>
+                <button id="chartsBtn" class="btn-primary" onclick="goToCharts()">Phân tích</button>
+                <button id="refreshBtn" class="btn-primary">Làm mới</button>
+            </div>
+        </div>
+        <div class="status-row">
+            <span id="lastUpdate">Cập nhật lần cuối: Chưa có</span>
         </div>
     </header>
 
-    <main>
-        <div class="dashboard-grid">
-            <!-- Key Performance Indicators -->
-            <section class="card kpi-section">
-                <h2>Key Performance Indicators</h2>
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-header">
-                            <span class="kpi-label">System Health</span>
-                            <span class="kpi-value" id="systemHealth">--</span>
-                        </div>
-                        <div class="kpi-bar">
-                            <div class="kpi-progress" id="systemHealthBar"></div>
-                        </div>
-                        <span class="kpi-subtitle" id="systemHealthStatus">Calculating...</span>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-header">
-                            <span class="kpi-label">Avg pH Level</span>
-                            <span class="kpi-value" id="avgPh">--</span>
-                        </div>
-                        <div class="kpi-subtitle" id="phStatus">No data</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-header">
-                            <span class="kpi-label">Avg TDS (ppm)</span>
-                            <span class="kpi-value" id="avgTds">--</span>
-                        </div>
-                        <div class="kpi-subtitle" id="tdsStatus">No data</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-header">
-                            <span class="kpi-label">Avg Temperature</span>
-                            <span class="kpi-value" id="avgTemp">--°C</span>
-                        </div>
-                        <div class="kpi-subtitle" id="tempStatus">No data</div>
-                    </div>
-                </div>
-            </section>
+    <main class="dashboard-main">
+        <section class="zone-section">
+            <div id="zoneTabs" class="zone-tabs"></div>
+        </section>
 
-            <!-- System Overview -->
-            <section class="card overview-card">
-                <h2>System Overview</h2>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-value" id="totalDevices">0</span>
-                        <span class="stat-label">Total Devices</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value" id="activeDevices">0</span>
-                        <span class="stat-label">Active Devices</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value" id="activeAlerts">0</span>
-                        <span class="stat-label">Active Alerts</span>
-                    </div>
-                </div>
-            </section>
+        <section class="stats-strip">
+            <div class="stat-item">
+                <span class="stat-value" id="totalDevices">0</span>
+                <span class="stat-label">Tổng thiết bị</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="activeDevices">0</span>
+                <span class="stat-label">Đang hoạt động</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="activeAlerts">0</span>
+                <span class="stat-label">Cảnh báo</span>
+            </div>
+        </section>
 
-            <!-- Device Status -->
-            <section class="card devices-card">
-                <h2>Device Status & Health</h2>
-                <div class="device-health-legend">
-                    <span class="legend-item"><span class="legend-dot healthy"></span>Healthy</span>
-                    <span class="legend-item"><span class="legend-dot warning"></span>Warning</span>
-                    <span class="legend-item"><span class="legend-dot critical"></span>Critical</span>
-                    <span class="legend-item"><span class="legend-dot offline"></span>Offline</span>
-                </div>
-                <div id="devicesContainer" class="devices-grid">
-                    <!-- Devices will be loaded here -->
-                </div>
-            </section>
+        <section>
+            <h2 class="section-title">Cảm biến chính</h2>
+            <div id="sensorQuickGrid" class="quick-grid"></div>
+        </section>
 
-            <!-- Active Alerts -->
-            <section class="card alerts-card">
-                <h2>Active Alerts</h2>
-                <div id="alertsContainer" class="alerts-list">
-                    <!-- Alerts will be loaded here -->
-                </div>
-            </section>
+        <section>
+            <h2 class="section-title">Điều khiển nhanh</h2>
+            <div id="actuatorQuickGrid" class="quick-grid"></div>
+        </section>
 
-            <!-- Manual Control -->
-            <section class="card control-card">
-                <h2>Manual Control</h2>
+        <section>
+            <h2 class="section-title">Thiết bị</h2>
+            <div id="devicesContainer" class="devices-grid"></div>
+        </section>
+
+        <section class="grid-two">
+            <article class="card">
+                <h2>Cảnh báo đang hoạt động</h2>
+                <div id="alertsContainer" class="alerts-list"></div>
+            </article>
+
+            <article class="card">
+                <h2>Điều khiển thủ công</h2>
                 <form id="controlForm" class="control-form">
                     <div class="form-group">
-                        <label for="deviceSelect">Device:</label>
-                        <select id="deviceSelect" required>
-                            <option value="">Select Device</option>
+                        <label for="deviceSelect">Thiết bị:</label>
+                        <select id="deviceSelect" name="deviceSelect" required>
+                            <option value="">Chọn thiết bị</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="actuatorSelect">Actuator:</label>
-                        <select id="actuatorSelect" required>
-                            <option value="">Select Actuator</option>
-                            <option value="0">Pump</option>
-                            <option value="1">Fan</option>
-                            <option value="2">Light</option>
-                            <option value="3">Heater</option>
+                        <label for="actuatorSelect">Thiết bị chấp hành:</label>
+                        <select id="actuatorSelect" name="actuatorSelect" required>
+                            <option value="">Chọn thiết bị</option>
+                            <option value="0">Bơm</option>
+                            <option value="1">Quạt</option>
+                            <option value="2">Đèn</option>
+                            <option value="3">Sưởi</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="actionSelect">Action:</label>
-                        <select id="actionSelect" required>
-                            <option value="">Select Action</option>
-                            <option value="ON">Turn ON</option>
-                            <option value="OFF">Turn OFF</option>
+                        <label for="actionSelect">Hành động:</label>
+                        <select id="actionSelect" name="actionSelect" required>
+                            <option value="">Chọn hành động</option>
+                            <option value="ON">BẬT</option>
+                            <option value="OFF">TẮT</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="reasonInput">Reason:</label>
-                        <input type="text" id="reasonInput" placeholder="Optional reason">
+                        <label for="reasonInput">Ghi chú:</label>
+                        <input type="text" id="reasonInput" name="reasonInput" placeholder="Lý do điều khiển (tùy chọn)">
                     </div>
-                    <button type="submit" class="btn-primary">Send Command</button>
+                    <button type="submit" class="btn-primary">Gửi lệnh</button>
                 </form>
-            </section>
-        </div>
+            </article>
+        </section>
     </main>
 
-    <!-- Device Details Modal -->
+    <!-- Hộp thoại chi tiết thiết bị -->
     <div id="deviceModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2 id="deviceModalTitle">Device Details</h2>
+            <h2 id="deviceModalTitle">Chi tiết thiết bị</h2>
             <div id="deviceModalContent">
-                <!-- Device details will be loaded here -->
+                <!-- Chi tiết thiết bị sẽ hiển thị tại đây -->
             </div>
         </div>
     </div>

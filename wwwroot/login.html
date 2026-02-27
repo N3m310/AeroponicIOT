@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <title>Smart Farm IoT - Đăng nhập</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Farm IoT - Login</title>
+
     <style>
         * {
             margin: 0;
@@ -13,8 +14,10 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background:
+                linear-gradient(rgba(27, 94, 32, 0.45), rgba(46, 125, 50, 0.5)),
+                url("/images/Khi_canh.jpg?v=1") no-repeat center center/cover;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,10 +25,10 @@
 
         .auth-container {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
             padding: 40px;
         }
 
@@ -35,14 +38,14 @@
         }
 
         .auth-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 26px;
+            color: #2e7d32;
+            margin-bottom: 5px;
         }
 
         .auth-header p {
-            color: #666;
             font-size: 14px;
+            color: #666;
         }
 
         .form-group {
@@ -51,195 +54,179 @@
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #333;
+            margin-bottom: 6px;
             font-weight: 500;
+            color: #333;
         }
 
         input {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
             font-size: 14px;
-            transition: border-color 0.3s;
+            transition: 0.3s;
         }
 
         input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #43a047;
+            box-shadow: 0 0 0 3px rgba(67,160,71,0.2);
         }
 
         .btn {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: 0.3s;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2e7d32, #66bb6a);
             color: white;
-            margin: 10px 0;
+            margin-top: 10px;
         }
 
         .btn-primary:hover {
             opacity: 0.9;
         }
 
-        .btn-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
+        .error-message {
+            background: #fdecea;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
         }
 
-        .btn-secondary:hover {
-            background: #f5f5f5;
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
         }
 
         .auth-toggle {
             text-align: center;
             margin-top: 20px;
-            color: #666;
             font-size: 14px;
         }
 
         .auth-toggle a {
-            color: #667eea;
-            text-decoration: none;
-            cursor: pointer;
+            color: #2e7d32;
             font-weight: 600;
+            text-decoration: none;
         }
 
         .auth-toggle a:hover {
             text-decoration: underline;
         }
 
-        .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 12px 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: none;
-            border-left: 4px solid #c33;
-        }
-
-        .success-message {
-            background: #efe;
-            color: #3c3;
-            padding: 12px 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: none;
-            border-left: 4px solid #3c3;
-        }
-
         .loading {
-            display: none;
             text-align: center;
-            color: #999;
             font-size: 12px;
+            margin-top: 10px;
+            display: none;
+            color: #999;
         }
     </style>
 </head>
 <body>
-    <div class="auth-container">
-        <!-- Login Form -->
-        <div id="loginForm" class="login-form">
-            <div class="auth-header">
-                <h1>🌱 Smart Farm IoT</h1>
-                <p>Welcome back! Please login to continue.</p>
-            </div>
 
-            <div class="error-message" id="loginError"></div>
-            <div class="success-message" id="loginSuccess"></div>
-
-            <form id="loginSubmit">
-                <div class="form-group">
-                    <label for="loginUsername">Username</label>
-                    <input type="text" id="loginUsername" placeholder="Enter your username" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Login</button>
-                <div class="loading" id="loginLoading">Logging in...</div>
-            </form>
-
-            <div class="auth-toggle">
-                Don't have an account? <a href="register.html">Register here</a>
-            </div>
-        </div>
+<div class="auth-container">
+    <div class="auth-header">
+        <h1>🌱 Smart Farm IoT</h1>
+        <p>Chào mừng quay lại! Vui lòng đăng nhập để tiếp tục.</p>
     </div>
 
-    <script>
-        const API_URL = 'http://localhost:5062/api';
+    <div class="error-message" id="loginError"></div>
+    <div class="success-message" id="loginSuccess"></div>
 
-        // Check if already logged in
-        window.addEventListener('load', () => {
-            const token = localStorage.getItem('token');
-            if (token) {
+    <form id="loginSubmit">
+        <div class="form-group">
+            <label>Tên đăng nhập</label>
+            <input type="text" id="loginUsername" placeholder="Nhập tên đăng nhập">
+        </div>
+
+        <div class="form-group">
+            <label>Mật khẩu</label>
+            <input type="password" id="loginPassword" placeholder="Nhập mật khẩu">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+        <div class="loading" id="loginLoading">Đang đăng nhập...</div>
+    </form>
+
+    <div class="auth-toggle">
+        Chưa có tài khoản? <a href="register.html">Đăng ký tại đây</a>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:5062/api';
+
+    window.addEventListener('load', () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = 'index.html';
+        }
+    });
+
+    document.getElementById('loginSubmit').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+
+        if (!username || !password) {
+            showError("Vui lòng nhập tên đăng nhập và mật khẩu.");
+            return;
+        }
+
+        document.getElementById('loginLoading').style.display = 'block';
+        hideMessages();
+
+        try {
+            const response = await fetch(`${API_URL}/authentication/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('username', data.username);
                 window.location.href = 'index.html';
+            } else {
+                showError(data.message || "Đăng nhập thất bại");
             }
-        });
-
-        // Login
-        document.getElementById('loginSubmit').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-
-            document.getElementById('loginLoading').style.display = 'block';
-            document.getElementById('loginError').style.display = 'none';
-
-            try {
-                const response = await fetch(`${API_URL}/authentication/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('username', data.username);
-                    localStorage.setItem('role', data.role);
-                    localStorage.setItem('userId', data.userId);
-                    window.location.href = 'index.html';
-                } else {
-                    showError('loginError', data.message || 'Login failed');
-                }
-            } catch (error) {
-                showError('loginError', 'Connection error. Please try again.');
-                console.error('Login error:', error);
-            } finally {
-                document.getElementById('loginLoading').style.display = 'none';
-            }
-        });
-
-        function showError(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.style.display = 'block';
+        } catch (error) {
+            showError("Lỗi kết nối. Vui lòng thử lại.");
+        } finally {
+            document.getElementById('loginLoading').style.display = 'none';
         }
+    });
 
-        function showSuccess(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.style.display = 'block';
-        }
-    </script>
+    function showError(message) {
+        const errorDiv = document.getElementById("loginError");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+    }
+
+    function hideMessages() {
+        document.getElementById("loginError").style.display = "none";
+        document.getElementById("loginSuccess").style.display = "none";
+    }
+</script>
+
 </body>
 </html>

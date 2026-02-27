@@ -13,6 +13,9 @@ const activeDevices = document.getElementById('activeDevices');
 const activeAlerts = document.getElementById('activeAlerts');
 const devicesContainer = document.getElementById('devicesContainer');
 const alertsContainer = document.getElementById('alertsContainer');
+const zoneTabs = document.getElementById('zoneTabs');
+const sensorQuickGrid = document.getElementById('sensorQuickGrid');
+const actuatorQuickGrid = document.getElementById('actuatorQuickGrid');
 const deviceSelect = document.getElementById('deviceSelect');
 const controlForm = document.getElementById('controlForm');
 const deviceModal = document.getElementById('deviceModal');
@@ -56,16 +59,16 @@ function checkAuthentication() {
             </button>
             <div id="notificationDropdown" class="notification-dropdown" style="display:none;">
                 <div class="notification-header">
-                    <h3>Notifications</h3>
-                    <button id="clearNotificationsBtn" class="clear-btn">Clear All</button>
+                    <h3>Thông báo</h3>
+                    <button id="clearNotificationsBtn" class="clear-btn">Xóa tất cả</button>
                 </div>
                 <div id="notificationsList" class="notifications-list">
-                    <p class="no-notifications">No new notifications</p>
+                    <p class="no-notifications">Không có thông báo mới</p>
                 </div>
             </div>
         </div>
         <span>${username} <small>(${role})</small></span>
-        <button id="logoutBtn" class="btn-secondary">Logout</button>
+        <button id="logoutBtn" class="btn-secondary">Đăng xuất</button>
     `;
     headerControls.appendChild(userInfo);
     
@@ -131,7 +134,7 @@ async function loadNotifications() {
             });
         } else {
             badge.style.display = 'none';
-            notificationsList.innerHTML = '<p class="no-notifications">No new notifications</p>';
+            notificationsList.innerHTML = '<p class="no-notifications">Không có thông báo mới</p>';
         }
     } catch (error) {
         console.error('Error loading notifications:', error);
@@ -154,7 +157,7 @@ async function markNotificationAsRead(notificationId) {
 // Clear all notifications
 async function clearAllNotifications() {
     try {
-        if (confirm('Clear all notifications?')) {
+        if (confirm('Bạn có muốn xóa toàn bộ thông báo?')) {
             await fetch(`${API_BASE}/notification/clear`, {
                 method: 'DELETE',
                 headers: getAuthHeaders()
@@ -172,7 +175,7 @@ function toggleNotificationSound() {
     localStorage.setItem('notificationSoundEnabled', soundEnabled);
     const toggleBtn = document.getElementById('soundToggle');
     toggleBtn.textContent = soundEnabled ? '🔊' : '🔇';
-    showSuccess(`Notification sound ${soundEnabled ? 'enabled' : 'disabled'}`);
+    showSuccess(`Âm thanh thông báo đã ${soundEnabled ? 'bật' : 'tắt'}`);
 }
 
 // Play notification sound using Web Audio API
@@ -245,14 +248,14 @@ async function loadDashboardData() {
             return;
         }
         
-        if (!response.ok) throw new Error('Failed to load dashboard data');
+        if (!response.ok) throw new Error('Không thể tải dữ liệu bảng điều khiển');
 
         const data = await response.json();
         updateDashboard(data);
         updateLastUpdate();
     } catch (error) {
-        console.error('Error loading dashboard data:', error);
-        showError('Failed to load dashboard data');
+        console.error('Lỗi tải dữ liệu bảng điều khiển:', error);
+        showError('Không thể tải dữ liệu bảng điều khiển');
     }
 }
 
@@ -262,6 +265,9 @@ function updateDashboard(data) {
     totalDevices.textContent = data.totalDevices;
     activeDevices.textContent = data.activeDevices;
     activeAlerts.textContent = data.activeAlerts.length;
+
+    updateZoneTabs(data.devices);
+    updateQuickOverview(data.devices);
 
     // Update devices
     updateDevices(data.devices);
@@ -273,12 +279,65 @@ function updateDashboard(data) {
     updateDeviceSelect(data.devices);
 }
 
+function updateZoneTabs(devices) {
+    if (!zoneTabs) return;
+
+    if (!devices || devices.length === 0) {
+        zoneTabs.innerHTML = '<div class="zone-tab">Chưa có khu vườn</div>';
+        return;
+    }
+
+    zoneTabs.innerHTML = devices.slice(0, 4).map((device, index) =>
+        `<div class="zone-tab">Khu vườn ${index + 1}: ${device.name}</div>`
+    ).join('');
+}
+
+function updateQuickOverview(devices) {
+    if (!sensorQuickGrid || !actuatorQuickGrid) return;
+
+    const activeDevice = devices.find(device => device.isActive) || devices[0];
+    const sensorData = activeDevice?.latestSensorData;
+
+    if (!activeDevice || !sensorData) {
+        sensorQuickGrid.innerHTML = '<div class="quick-card"><h3>Không có dữ liệu cảm biến</h3><div class="quick-status">Vui lòng kiểm tra thiết bị</div></div>';
+    } else {
+        sensorQuickGrid.innerHTML = [
+            buildQuickCard('🌡️ Cảm biến nhiệt độ', formatSensorValue(sensorData.waterTemperature, '°C', 1)),
+            buildQuickCard('💧 Cảm biến độ ẩm không khí', formatSensorValue(sensorData.airHumidity, '%', 1)),
+            buildQuickCard('⚗️ Cảm biến pH', formatSensorValue(sensorData.ph, '', 2)),
+            buildQuickCard('🧪 Cảm biến TDS', formatSensorValue(sensorData.tds, ' ppm', 0))
+        ].join('');
+    }
+
+    actuatorQuickGrid.innerHTML = [
+        buildQuickCard('💦 Bơm', 'Sẵn sàng'),
+        buildQuickCard('🌀 Quạt', 'Sẵn sàng'),
+        buildQuickCard('💡 Đèn', 'Sẵn sàng'),
+        buildQuickCard('🔥 Sưởi', 'Sẵn sàng')
+    ].join('');
+}
+
+function buildQuickCard(title, value) {
+    return `
+        <div class="quick-card">
+            <h3>${title}</h3>
+            <div class="quick-value">${value}</div>
+            <div class="quick-status">Trạng thái: Tốt</div>
+        </div>
+    `;
+}
+
+function formatSensorValue(value, unit, digits) {
+    if (value === null || value === undefined || Number.isNaN(value)) return '--';
+    return `${Number(value).toFixed(digits)}${unit}`;
+}
+
 // Update devices display
 function updateDevices(devices) {
     devicesContainer.innerHTML = '';
 
     if (devices.length === 0) {
-        devicesContainer.innerHTML = '<p>No devices registered</p>';
+        devicesContainer.innerHTML = '<p>Chưa có thiết bị nào được đăng ký</p>';
         return;
     }
 
@@ -294,7 +353,7 @@ function createDeviceCard(device) {
     card.className = 'device-card';
 
     const statusClass = device.isActive ? 'status-active' : 'status-inactive';
-    const statusText = device.isActive ? 'Active' : 'Inactive';
+    const statusText = device.isActive ? 'Hoạt động' : 'Không hoạt động';
 
     let sensorHtml = '<div class="sensor-grid">';
     if (device.latestSensorData) {
@@ -316,11 +375,11 @@ function createDeviceCard(device) {
             }
         });
     } else {
-        sensorHtml += '<p>No sensor data available</p>';
+        sensorHtml += '<p>Không có dữ liệu cảm biến</p>';
     }
     sensorHtml += '</div>';
 
-    const lastSeen = device.lastSeen ? new Date(device.lastSeen).toLocaleString() : 'Never';
+    const lastSeen = device.lastSeen ? new Date(device.lastSeen).toLocaleString() : 'Chưa từng';
 
     card.innerHTML = `
         <div class="device-header">
@@ -328,11 +387,11 @@ function createDeviceCard(device) {
             <div class="device-status ${statusClass}">${statusText}</div>
         </div>
         <div class="device-mac">MAC: ${device.macAddress}</div>
-        <div class="device-crop">Crop: ${device.cropName || 'Not assigned'}</div>
-        <div>Last seen: ${lastSeen}</div>
+        <div class="device-crop">Cây trồng: ${device.cropName || 'Chưa gán'}</div>
+        <div class="device-lastseen">Lần thấy gần nhất: ${lastSeen}</div>
         ${sensorHtml}
         <div class="device-actions">
-            <button class="btn-secondary" onclick="showDeviceDetails(${device.id})">Details</button>
+            <button class="btn-secondary" onclick="showDeviceDetails(${device.id})">Chi tiết</button>
         </div>
     `;
 
@@ -344,7 +403,7 @@ function updateAlerts(alerts) {
     alertsContainer.innerHTML = '';
 
     if (alerts.length === 0) {
-        alertsContainer.innerHTML = '<p>No active alerts</p>';
+        alertsContainer.innerHTML = '<p>Không có cảnh báo đang hoạt động</p>';
         return;
     }
 
@@ -378,7 +437,7 @@ function createAlertItem(alert) {
 
 // Update device select for manual control
 function updateDeviceSelect(devices) {
-    deviceSelect.innerHTML = '<option value="">Select Device</option>';
+    deviceSelect.innerHTML = '<option value="">Chọn thiết bị</option>';
 
     devices.forEach(device => {
         if (device.isActive) {
@@ -415,7 +474,7 @@ async function handleControlSubmit(e) {
             return;
         }
 
-        if (!response.ok) throw new Error('Failed to send control command');
+        if (!response.ok) throw new Error('Không thể gửi lệnh điều khiển');
 
         const result = await response.json();
         showSuccess(result.message);
@@ -426,8 +485,8 @@ async function handleControlSubmit(e) {
         // Refresh data
         loadDashboardData();
     } catch (error) {
-        console.error('Error sending control command:', error);
-        showError('Failed to send control command');
+        console.error('Lỗi gửi lệnh điều khiển:', error);
+        showError('Không thể gửi lệnh điều khiển');
     }
 }
 
@@ -445,18 +504,18 @@ async function showDeviceDetails(deviceId) {
             return;
         }
         
-        if (!response.ok) throw new Error('Failed to load device history');
+        if (!response.ok) throw new Error('Không thể tải lịch sử thiết bị');
 
         const history = await response.json();
 
         // Create modal content
-        let content = '<h3>Sensor History (Last 24 Hours)</h3>';
+        let content = '<h3>Lịch sử cảm biến (24 giờ gần nhất)</h3>';
 
         if (history.length === 0) {
-            content += '<p>No sensor data available</p>';
+            content += '<p>Không có dữ liệu cảm biến</p>';
         } else {
             content += '<table style="width: 100%; border-collapse: collapse;">';
-            content += '<thead><tr><th>Time</th><th>pH</th><th>TDS</th><th>Temp (°C)</th><th>Humidity (%)</th></tr></thead>';
+            content += '<thead><tr><th>Thời gian</th><th>pH</th><th>TDS</th><th>Nhiệt độ (°C)</th><th>Độ ẩm (%)</th></tr></thead>';
             content += '<tbody>';
 
             history.forEach(log => {
@@ -474,17 +533,17 @@ async function showDeviceDetails(deviceId) {
         }
 
         deviceModalContent.innerHTML = content;
-        deviceModalTitle.textContent = `Device Details - ID: ${deviceId}`;
+        deviceModalTitle.textContent = `Chi tiết thiết bị - ID: ${deviceId}`;
         deviceModal.style.display = 'block';
     } catch (error) {
-        console.error('Error loading device details:', error);
-        showError('Failed to load device details');
+        console.error('Lỗi tải chi tiết thiết bị:', error);
+        showError('Không thể tải chi tiết thiết bị');
     }
 }
 
 // Utility functions
 function updateLastUpdate() {
-    lastUpdate.textContent = `Last updated: ${new Date().toLocaleString()}`;
+    lastUpdate.textContent = `Cập nhật lần cuối: ${new Date().toLocaleString()}`;
 }
 
 function showSuccess(message) {
