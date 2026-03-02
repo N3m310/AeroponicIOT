@@ -61,11 +61,18 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(sl => sl.DeviceId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Indexes for faster queries on logs
+        modelBuilder.Entity<SensorLog>()
+            .HasIndex(sl => new { sl.DeviceId, sl.Timestamp });
+
         modelBuilder.Entity<ActuatorLog>()
             .HasOne(al => al.Device)
             .WithMany(d => d.ActuatorLogs)
             .HasForeignKey(al => al.DeviceId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ActuatorLog>()
+            .HasIndex(al => new { al.DeviceId, al.Timestamp });
 
         modelBuilder.Entity<Alert>()
             .HasOne(a => a.Device)

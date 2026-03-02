@@ -22,12 +22,22 @@ const closeModal = document.querySelector('.close');
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
+    bindNavigationButtons();
+
     // Check authentication
     checkAuthentication();
     
     loadDashboardData();
     setInterval(loadDashboardData, 30000); // Refresh every 30 seconds
 });
+
+// Bind nav buttons defensively (works even if inline onclick handlers are blocked)
+function bindNavigationButtons() {
+    document.getElementById('chartsBtn')?.addEventListener('click', goToCharts);
+    document.getElementById('automationBtn')?.addEventListener('click', goToAutomation);
+    document.getElementById('devicesBtn')?.addEventListener('click', goToDevices);
+    document.getElementById('healthBtn')?.addEventListener('click', goToHealth);
+}
 
 // Check if user is authenticated
 function checkAuthentication() {
@@ -542,4 +552,9 @@ function goToAutomation() {
 // Navigate to device management page
 function goToDevices() {
     window.location.href = 'devices.html';
+}
+
+// Navigate to health page
+function goToHealth() {
+    window.location.href = 'health.html';
 }

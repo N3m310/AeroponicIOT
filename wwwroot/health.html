@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Health - Smart Farm IoT</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <header>
+        <h1>System Health</h1>
+        <div class="header-controls">
+            <button class="btn-primary" onclick="goBackToDashboard()">← Back to Dashboard</button>
+            <span id="healthLastChecked">Last checked: Never</span>
+        </div>
+    </header>
+
+    <main>
+        <section class="card">
+            <h2>Overall Status</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Overall</span>
+                    <span id="healthStatus" class="stat-value">--</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Database</span>
+                    <span id="dbStatus" class="stat-value">--</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">MQTT Broker</span>
+                    <span id="mqttStatus" class="stat-value">--</span>
+                </div>
+            </div>
+            <p style="margin-top:1rem;">Last successful response: <span id="healthTimestamp">Never</span></p>
+            <button class="btn-primary" onclick="loadHealth()">Refresh Now</button>
+        </section>
+
+        <section class="card">
+            <h2>Details</h2>
+            <pre id="healthRaw" style="background:#f8f9fa;padding:1rem;border-radius:4px;overflow:auto;max-height:300px;">No data yet.</pre>
+        </section>
+    </main>
+
+    <script src="js/health.js"></script>
+</body>
+</html>
+

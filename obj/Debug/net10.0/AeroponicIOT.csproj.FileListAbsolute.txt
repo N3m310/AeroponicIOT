@@ -169,10 +169,8 @@ C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\zbhduuj
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\u0d90dfen5-{0}-29vnvofjzx-29vnvofjzx.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\i1ulfaa1uc-{0}-42aw4ngz0v-42aw4ngz0v.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\6jlpjz4mwq-{0}-dw7zvowdaw-dw7zvowdaw.gz
-C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\z5kq5atqqw-{0}-fvyxfjbgmy-fvyxfjbgmy.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\vfzc4efsc4-{0}-8ubgpkujg4-8ubgpkujg4.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\z7iwfc1ken-{0}-2uxmwi2yqd-2uxmwi2yqd.gz
-C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\8wzlgoae7g-{0}-v4hbj4fp6f-v4hbj4fp6f.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\rzwd9tmpp2-{0}-ib9cm64s7d-ib9cm64s7d.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\staticwebassets.build.json
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\staticwebassets.build.json.cache
@@ -188,3 +186,7 @@ C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\ref\AeroponicIOT.d
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\6qs8fgldo3-{0}-44russtw4v-44russtw4v.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\r02sf6cks5-{0}-g6un5zo69q-g6un5zo69q.gz
 C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\3vbb45sp49-{0}-q8b52vudva-q8b52vudva.gz
+C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\1l4sug3hhi-{0}-j4zu3q2u8l-j4zu3q2u8l.gz
+C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\z5kq5atqqw-{0}-rc4klvibj4-rc4klvibj4.gz
+C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\ansvadoaug-{0}-kaq127xmyb-kaq127xmyb.gz
+C:\Users\drago\Desktop\Studies\AeroponicIOT\obj\Debug\net10.0\compressed\8wzlgoae7g-{0}-edwgsdqszp-edwgsdqszp.gz

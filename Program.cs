@@ -3,6 +3,8 @@ using AeroponicIOT.Services.Automation;
 using AeroponicIOT.Services.Mqtt;
 using AeroponicIOT.Services.Notifications;
 using AeroponicIOT.Services.Sensors;
+using AeroponicIOT.Services.Maintenance;
+using AeroponicIOT.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -70,6 +72,7 @@ builder.Services.AddScoped<ISensorIngestionService, SensorIngestionService>();
 
 // Automation background service
 builder.Services.AddHostedService<AutomationBackgroundService>();
+builder.Services.AddHostedService<LogRetentionBackgroundService>();
 
 var app = builder.Build();
 
@@ -80,12 +83,62 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Serve static files
 app.UseStaticFiles();
+
+// Health endpoint (DB + MQTT)
+app.MapGet("/health", async (ApplicationDbContext db, IMqttService mqtt, CancellationToken ct) =>
+{
+    try
+    {
+        var canConnect = await db.Database.CanConnectAsync(ct);
+        if (!canConnect)
+        {
+            return Results.Json(new
+            {
+                status = "Unhealthy",
+                db = "Unavailable",
+                mqtt = mqtt.IsRunning ? "Running" : "Stopped",
+                timestamp = DateTime.UtcNow
+            }, statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new
+        {
+            status = "Unhealthy",
+            db = "Error",
+            mqtt = mqtt.IsRunning ? "Running" : "Stopped",
+            error = ex.Message,
+            timestamp = DateTime.UtcNow
+        }, statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+
+    if (!mqtt.IsRunning)
+    {
+        return Results.Json(new
+        {
+            status = "Unhealthy",
+            db = "Connected",
+            mqtt = "Stopped",
+            timestamp = DateTime.UtcNow
+        }, statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+
+    return Results.Ok(new
+    {
+        status = "Healthy",
+        db = "Connected",
+        mqtt = "Running",
+        timestamp = DateTime.UtcNow
+    });
+});
 
 // Default route to dashboard
 app.MapGet("/", async context =>
