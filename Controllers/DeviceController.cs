@@ -4,6 +4,7 @@ using AeroponicIOT.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AeroponicIOT.Controllers;
 
@@ -21,15 +22,21 @@ public class DeviceController : ControllerBase
         _logger = logger;
     }
 
-    // Get current user ID from JWT claims
     private int GetCurrentUserId()
     {
-        var userIdClaim = User.FindFirst("sub")?.Value;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? User.FindFirst("sub")?.Value;
         if (int.TryParse(userIdClaim, out var userId))
         {
             return userId;
         }
         throw new UnauthorizedAccessException("User ID not found in token");
+    }
+
+    private string? GetCurrentUserRole()
+    {
+        return User.FindFirst(ClaimTypes.Role)?.Value
+            ?? User.FindFirst("role")?.Value;
     }
 
     [HttpGet]
@@ -38,10 +45,10 @@ public class DeviceController : ControllerBase
         try
         {
             var userId = GetCurrentUserId();
-            var userRole = User.FindFirst("role")?.Value;
+            var userRole = GetCurrentUserRole();
 
             IEnumerable<Device> devices;
-            
+
             // Admins can see all devices, farmers only their own
             if (userRole == "Administrator")
             {
@@ -73,6 +80,11 @@ public class DeviceController : ControllerBase
             _logger.LogInformation("User {UserId} retrieved {Count} devices", userId, deviceDtos.Count);
             return Ok(deviceDtos);
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Unauthorized while getting devices");
+            return Unauthorized(new { detail = "User not authenticated" });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting devices");
@@ -86,7 +98,7 @@ public class DeviceController : ControllerBase
         try
         {
             var userId = GetCurrentUserId();
-            var userRole = User.FindFirst("role")?.Value;
+            var userRole = GetCurrentUserRole();
 
             var device = await _context.Devices
                 .Include(d => d.Crop)
@@ -119,6 +131,11 @@ public class DeviceController : ControllerBase
             };
 
             return Ok(deviceDto);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Unauthorized while getting device {DeviceId}", id);
+            return Unauthorized(new { detail = "User not authenticated" });
         }
         catch (Exception ex)
         {
@@ -178,7 +195,7 @@ public class DeviceController : ControllerBase
             _context.Devices.Add(device);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("User {UserId} created device {DeviceId} with MAC {MacAddress}", 
+            _logger.LogInformation("User {UserId} created device {DeviceId} with MAC {MacAddress}",
                 userId, device.Id, device.MacAddress);
 
             var deviceDto = new DeviceDto
@@ -194,6 +211,11 @@ public class DeviceController : ControllerBase
             };
 
             return CreatedAtAction(nameof(GetDeviceById), new { id = device.Id }, deviceDto);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Unauthorized while creating device");
+            return Unauthorized(new { detail = "User not authenticated" });
         }
         catch (Exception ex)
         {
@@ -213,7 +235,7 @@ public class DeviceController : ControllerBase
             }
 
             var userId = GetCurrentUserId();
-            var userRole = User.FindFirst("role")?.Value;
+            var userRole = GetCurrentUserRole();
 
             var device = await _context.Devices
                 .Include(d => d.Crop)
@@ -270,6 +292,11 @@ public class DeviceController : ControllerBase
 
             return Ok(deviceDto);
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Unauthorized while updating device {DeviceId}", id);
+            return Unauthorized(new { detail = "User not authenticated" });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating device {DeviceId}", id);
@@ -283,7 +310,7 @@ public class DeviceController : ControllerBase
         try
         {
             var userId = GetCurrentUserId();
-            var userRole = User.FindFirst("role")?.Value;
+            var userRole = GetCurrentUserRole();
 
             var device = await _context.Devices
                 .FirstOrDefaultAsync(d => d.Id == id);
@@ -321,6 +348,11 @@ public class DeviceController : ControllerBase
 
             return Ok(new { detail = "Device deleted successfully" });
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Unauthorized while deleting device {DeviceId}", id);
+            return Unauthorized(new { detail = "User not authenticated" });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting device {DeviceId}", id);
@@ -338,4 +370,8 @@ public class DeviceController : ControllerBase
         var pattern = @"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$";
         return System.Text.RegularExpressions.Regex.IsMatch(macAddress, pattern);
     }
+
+
+
+
 }

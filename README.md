@@ -21,9 +21,9 @@ A comprehensive IoT system for monitoring and controlling aeroponic farming envi
 
 | Layer | Technology |
 |-------|-----------|
-| **Backend** | ASP.NET Core 8 Web API with Entity Framework Core |
+| **Backend** | ASP.NET Core 10 Web API with Entity Framework Core |
 | **IoT Messaging** | MQTT Broker (MQTTnet) on port 1883 |
-| **Database** | SQL Server / SQLite |
+| **Database** | SQL Server |
 | **Frontend** | HTML5, CSS3, JavaScript (Vanilla) |
 | **Authentication** | JWT with role-based access control |
 | **API** | RESTful design with CORS enabled |
@@ -31,7 +31,7 @@ A comprehensive IoT system for monitoring and controlling aeroponic farming envi
 ## Quick Start
 
 ### Prerequisites
-- .NET 8 SDK
+- .NET 10 SDK
 
 ### Installation & Run
 
@@ -43,7 +43,7 @@ dotnet run
 
 Access the dashboard at `http://localhost:5062`
 
-The SQLite database is automatically created with pre-configured devices (2 units) and crop types (Lettuce, Tomato, Strawberry).
+On startup, EF Core migrations are applied automatically if the database is available.
 
 ## API Endpoints
 
@@ -424,8 +424,9 @@ curl -X POST http://localhost:5062/api/notification/test-email \
 ## Database
 
 ### Configuration
-- Default: SQLite (`AeroponicIOT.db`)
-- Custom database: Update `appsettings.json` and `Program.cs`
+- Default (development): SQL Server LocalDB via `appsettings.json`
+- Docker deployment: SQL Server container via `docker-compose.yml`
+- Custom database: Update `ConnectionStrings:DefaultConnection`
 
 ### Main Tables
 - **Devices**: IoT device information
@@ -445,7 +446,7 @@ curl -X POST http://localhost:5062/api/notification/test-email \
 | Issue | Solution |
 |-------|----------|
 | Port already in use | Change port in `Properties/launchSettings.json` |
-| Database issues | Delete `AeroponicIOT.db` and restart (auto-recreated) |
+| Database issues | Verify SQL Server connectivity and connection string, then restart app |
 | Build errors | Run `dotnet clean && dotnet build` |
 | .NET version | Verify with `dotnet --version` (requires 8.x.x) |
 
