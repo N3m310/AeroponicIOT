@@ -47,6 +47,7 @@ public class DeviceController : ControllerBase
             {
                 devices = await _context.Devices
                     .Include(d => d.Crop)
+                    .Include(d => d.Garden)
                     .ToListAsync();
             }
             else
@@ -54,6 +55,7 @@ public class DeviceController : ControllerBase
                 devices = await _context.Devices
                     .Where(d => d.UserId == userId)
                     .Include(d => d.Crop)
+                    .Include(d => d.Garden)
                     .ToListAsync();
             }
 
@@ -66,6 +68,8 @@ public class DeviceController : ControllerBase
                 IsActive = d.IsActive,
                 CurrentCropId = d.CurrentCropId,
                 CropName = d.Crop?.Name,
+                GardenId = d.GardenId,
+                GardenName = d.Garden?.Name,
                 CreatedAt = d.CreatedAt,
                 LastSeen = d.LastSeen
             }).ToList();
@@ -90,6 +94,7 @@ public class DeviceController : ControllerBase
 
             var device = await _context.Devices
                 .Include(d => d.Crop)
+                .Include(d => d.Garden)
                 .FirstOrDefaultAsync(d => d.Id == id);
 
             if (device == null)
@@ -114,6 +119,8 @@ public class DeviceController : ControllerBase
                 IsActive = device.IsActive,
                 CurrentCropId = device.CurrentCropId,
                 CropName = device.Crop?.Name,
+                GardenId = device.GardenId,
+                GardenName = device.Garden?.Name,
                 CreatedAt = device.CreatedAt,
                 LastSeen = device.LastSeen
             };
@@ -164,11 +171,21 @@ public class DeviceController : ControllerBase
                 }
             }
 
+            if (createDto.GardenId.HasValue)
+            {
+                var garden = await _context.Gardens.FindAsync(createDto.GardenId);
+                if (garden == null)
+                {
+                    return BadRequest(new { detail = "Garden not found" });
+                }
+            }
+
             var device = new Device
             {
                 DeviceName = createDto.Name,
                 MacAddress = createDto.MacAddress.ToUpper(),
                 CurrentCropId = createDto.CurrentCropId,
+                GardenId = createDto.GardenId,
                 UserId = userId,
                 Status = "Active",
                 CreatedAt = DateTime.UtcNow,
@@ -189,6 +206,7 @@ public class DeviceController : ControllerBase
                 Status = device.Status,
                 IsActive = device.IsActive,
                 CurrentCropId = device.CurrentCropId,
+                GardenId = device.GardenId,
                 CreatedAt = device.CreatedAt,
                 LastSeen = device.LastSeen
             };
@@ -217,6 +235,7 @@ public class DeviceController : ControllerBase
 
             var device = await _context.Devices
                 .Include(d => d.Crop)
+                .Include(d => d.Garden)
                 .FirstOrDefaultAsync(d => d.Id == id);
 
             if (device == null)
@@ -247,6 +266,20 @@ public class DeviceController : ControllerBase
                 device.CurrentCropId = null;
             }
 
+            if (updateDto.GardenId.HasValue)
+            {
+                var garden = await _context.Gardens.FindAsync(updateDto.GardenId);
+                if (garden == null)
+                {
+                    return BadRequest(new { detail = "Garden not found" });
+                }
+                device.GardenId = updateDto.GardenId;
+            }
+            else
+            {
+                device.GardenId = null;
+            }
+
             device.DeviceName = updateDto.Name ?? device.DeviceName;
             device.Status = updateDto.Status ?? device.Status;
 
@@ -264,6 +297,8 @@ public class DeviceController : ControllerBase
                 IsActive = device.IsActive,
                 CurrentCropId = device.CurrentCropId,
                 CropName = device.Crop?.Name,
+                GardenId = device.GardenId,
+                GardenName = device.Garden?.Name,
                 CreatedAt = device.CreatedAt,
                 LastSeen = device.LastSeen
             };
