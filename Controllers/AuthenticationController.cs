@@ -42,6 +42,25 @@ public class AuthenticationController : ControllerBase
                 });
             }
 
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                return BadRequest(new TokenResponse
+                {
+                    Success = false,
+                    Message = "Email is required"
+                });
+            }
+
+            request.Email = request.Email.Trim();
+            if (!request.Email.EndsWith("@email.com", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(new TokenResponse
+                {
+                    Success = false,
+                    Message = "Email must end with @email.com"
+                });
+            }
+
             // Check if user already exists
             var existingUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == request.Username);
