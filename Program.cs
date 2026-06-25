@@ -58,24 +58,29 @@ builder.Services.AddSwaggerGen(options =>
     // JWT bearer token support in Swagger UI "Authorize" button.
     // Enables the "Authorize" button so users can paste their JWT token
     // and test authenticated endpoints directly from Swagger UI.
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
-        In = Microsoft.OpenApi.ParameterLocation.Header,
-        Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
         Description = "Enter your JWT token"
     });
     // Add a global security requirement so all endpoints show the lock icon in Swagger UI.
-    options.AddSecurityRequirement(static document =>
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
-        var scheme = document.Components?.SecuritySchemes?.FirstOrDefault(s => s.Key == "Bearer").Value;
-        if (scheme == null) return new Microsoft.OpenApi.OpenApiSecurityRequirement();
-
-        // OpenApi v2.x: the requirement dictionary uses OpenApiSecuritySchemeReference keys.
-        var reference = new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer");
-        return new Microsoft.OpenApi.OpenApiSecurityRequirement { { reference, new List<string>() } };
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 
     // Group endpoints by controller name for a clean Swagger UI layout.
@@ -87,7 +92,6 @@ builder.Services.AddSwaggerGen(options =>
     options.OrderActionsBy(api => api.RelativePath ?? api.HttpMethod ?? "");
 });
 
-builder.Services.AddOpenApi();
 
 builder.Services.AddOptions<JwtSettingsOptions>()
     .Bind(builder.Configuration.GetSection("JwtSettings"))
@@ -237,7 +241,7 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownIPNetworks.Clear();
+    options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
 
@@ -358,7 +362,7 @@ var failFastOnInitializationError = builder.Configuration.GetValue<bool?>("Start
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
