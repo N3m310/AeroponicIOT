@@ -8,8 +8,8 @@ Tổng quan toàn bộ công nghệ được sử dụng trong dự án **Aeropo
 
 | Công Nghệ | Mô Tả |
 |-----------|-------|
-| **.NET 10** (`net10.0`) | Nền tảng runtime chính — ASP.NET Core Web API |
-| **Entity Framework Core 10** | ORM — thao tác cơ sở dữ liệu |
+| **.NET 8** (`net8.0`) | Nền tảng runtime chính — ASP.NET Core Web API |
+| **Entity Framework Core 8** | ORM — thao tác cơ sở dữ liệu |
 | **SQL Server 2022** | Cơ sở dữ liệu quan hệ chính |
 | **Redis 7 (Alpine)** | Bộ nhớ đệm (cache) — qua `StackExchange.Redis` |
 | **Swagger / OpenAPI** | Tài liệu API tự động (Swashbuckle) |
@@ -95,7 +95,7 @@ graph TB
         CH[Chart.js]
     end
 
-    subgraph "Backend - ASP.NET Core 10"
+    subgraph "Backend - ASP.NET Core 8"
         API[REST API Controllers]
         MQTT[MQTT Broker - MQTTnet]
         AUTH[JWT Authentication]
@@ -134,4 +134,4 @@ graph TB
 
 ---
 
-📅 **Cập nhật lần cuối:** 2026-06-09
+📅 **Cập nhật lần cuối:** 2026-06-27

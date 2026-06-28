@@ -199,7 +199,8 @@ Create a new automation rule.
   "scheduleTime": "string? (HH:mm)",
   "scheduleDays": "string? (comma-separated day names)",
   "durationMinutes": "int?",
-  "priority": "int (1-10, default: 1)"
+  "priority": "int (1-10, default: 1)",
+  "isActive": "bool (default: true)"
 }
 ```
 
@@ -463,8 +464,7 @@ Anonymous device self-registration (provisioning). Generates a claim code.
   "macAddress": "string (required, MAC format)",
   "chipId": "string? (max 100 chars)",
   "firmwareVersion": "string? (max 50 chars)",
-  "deviceName": "string? (max 100 chars)",
-  "protocolType": "string? (\"wifi\" or \"zigbee\")"
+  "deviceName": "string? (max 100 chars)"
 }
 ```
 
@@ -482,8 +482,9 @@ Claim a pending device using its claim code, and optionally assign it to a crop 
 **Request body:**
 ```json
 {
-  "claimCode": "string (required, 16 chars)",
-  "cropId": "int?",
+  "claimCode": "string (required, 6-character uppercase code)",
+  "name": "string? (max 100 chars)",
+  "currentCropId": "int?",
   "gardenId": "int?"
 }
 ```
@@ -515,15 +516,10 @@ Create a new device (admin provisioning).
 **Request body:**
 ```json
 {
-  "macAddress": "string (required)",
-  "deviceName": "string?",
-  "chipId": "string?",
-  "firmwareVersion": "string?",
-  "protocolType": "string? (\"wifi\" or \"zigbee\")",
-  "status": "string?",
+  "name": "string (required, max 100 chars)",
+  "macAddress": "string (required, MAC format)",
   "currentCropId": "int?",
-  "gardenId": "int?",
-  "userId": "int?"
+  "gardenId": "int?"
 }
 ```
 
@@ -540,6 +536,16 @@ Update a device.
 | `id` | int | Path | Device ID |
 
 **Auth:** `[Authorize]`
+
+**Request body:**
+```json
+{
+  "name": "string? (max 100 chars)",
+  "currentCropId": "int?",
+  "gardenId": "int?",
+  "status": "string? (Pending, Active, Online, Offline, Inactive)"
+}
+```
 
 **Response `200`:** `ApiResponse<DeviceDto>`
 
@@ -886,4 +892,4 @@ Delete a user and their associated notifications. Cannot delete your own account
 
 ---
 
-*Last updated: June 4, 2026*
+*Last updated: June 27, 2026*
