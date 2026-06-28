@@ -13,6 +13,8 @@ public class CropStageUpsertDto
     public int? WaterTempMax { get; set; }
     public int? HumidityMin { get; set; }
     public int? HumidityMax { get; set; }
+    public int? LightIntensityMin { get; set; }
+    public int? LightIntensityMax { get; set; }
     public int? PumpOnMinutes { get; set; }
     public int? PumpOffMinutes { get; set; }
 }

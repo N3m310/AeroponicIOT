@@ -47,6 +47,12 @@ public class CropStage
     [Column("humidity_max")]
     public int? HumidityMax { get; set; }
 
+    [Column("light_intensity_min")]
+    public int? LightIntensityMin { get; set; }
+
+    [Column("light_intensity_max")]
+    public int? LightIntensityMax { get; set; }
+
     [Column("pump_on_minutes")]
     public int? PumpOnMinutes { get; set; }
 
@@ -86,6 +92,12 @@ public class CropStage
 
     [NotMapped]
     public double MaxHumidity => HumidityMax ?? 0;
+
+    [NotMapped]
+    public double MinLightIntensity => LightIntensityMin ?? 0;
+
+    [NotMapped]
+    public double MaxLightIntensity => LightIntensityMax ?? 0;
 
     // Actuator timing rules
     [NotMapped]

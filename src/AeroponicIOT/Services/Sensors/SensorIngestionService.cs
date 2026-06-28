@@ -219,6 +219,22 @@ public class SensorIngestionService : ISensorIngestionService
             }
         }
 
+        // Check light intensity
+        if (sensorLog.LightIntensity.HasValue)
+        {
+            if (sensorLog.LightIntensity < currentStage.MinLightIntensity || sensorLog.LightIntensity > currentStage.MaxLightIntensity)
+            {
+                alerts.Add(new Alert
+                {
+                    DeviceId = device.Id,
+                    AlertType = "Warning",
+                    Message = $"Light intensity {sensorLog.LightIntensity:F0} lux is outside acceptable range ({currentStage.MinLightIntensity:F0}-{currentStage.MaxLightIntensity:F0} lux)",
+                    Severity = "Medium",
+                    IsResolved = false
+                });
+            }
+        }
+
         // Check humidity
         if (sensorLog.Humidity.HasValue)
         {

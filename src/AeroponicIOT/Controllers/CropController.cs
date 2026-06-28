@@ -95,6 +95,8 @@ public class CropController : ControllerBase
                     s.WaterTempMax,
                     s.HumidityMin,
                     s.HumidityMax,
+                    s.LightIntensityMin,
+                    s.LightIntensityMax,
                     s.PumpOnMinutes,
                     s.PumpOffMinutes
                 }).ToList(),
@@ -252,6 +254,8 @@ public class CropController : ControllerBase
             WaterTempMax = stage.WaterTempMax,
             HumidityMin = stage.HumidityMin,
             HumidityMax = stage.HumidityMax,
+            LightIntensityMin = stage.LightIntensityMin,
+            LightIntensityMax = stage.LightIntensityMax,
             PumpOnMinutes = stage.PumpOnMinutes,
             PumpOffMinutes = stage.PumpOffMinutes
         };
