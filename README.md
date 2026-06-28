@@ -53,8 +53,7 @@ A comprehensive IoT system for monitoring and controlling **aeroponic farming en
 ### Installation & Run
 
 ```bash
-cd AeroponicIOT
-dotnet restore
+cd src/AeroponicIOT
 dotnet run
 ```
 
@@ -129,7 +128,9 @@ Error responses follow [RFC 7231 Problem Details](https://httpstatuses.com/) (`a
 | Endpoint | Method | Auth | Description |
 |----------|--------|------|-------------|
 | `/api/dashboard/latest` | GET | `[Authorize]` | Paginated devices + latest sensor data + active alerts |
-| `/api/dashboard/kpi` | GET | `[Authorize]` | System-wide KPIs |
+| `/api/dashboard/kpi` | GET | `[Authorize]` | System-wide KPIs (total devices, active devices, alerts summary) |
+| `/api/dashboard/health` | GET | `[Authorize]` | System health overview (DB, MQTT, email status) |
+| `/api/dashboard/history/{deviceId}` | GET | `[Authorize]` | Historical sensor data for a device (24h to 30d) |
 
 ### Actuator Control
 
@@ -392,8 +393,8 @@ An ESP32/ESP8266 Arduino sketch is available at `firmware/esp32_self_register_ex
 │   └── Sensors/         # Sensor data ingestion pipeline
 ├── firmware/             # ESP32/ESP8266 Arduino example
 ├── wwwroot/              # Web dashboard (9 HTML pages, 7 CSS, 9 JS)
-├── tests/                # xUnit integration tests (21 test files)
-└── docs/                 # API reference, tech stack, system structure, Grafana dashboard
+├── tests/                # xUnit integration tests (20 test files)
+├── docs/                 # API reference, API samples (.http), tech stack, system structure, business logic, Grafana dashboard
 ```
 
 ---
@@ -405,6 +406,7 @@ An ESP32/ESP8266 Arduino sketch is available at `firmware/esp32_self_register_ex
 | `docs/api-reference.md` | Full API endpoint reference with request/response examples |
 | `docs/tech-stack.md` | Technology stack overview (Vietnamese) |
 | `docs/system-structure.md` | Comprehensive system architecture, data model, configuration |
+| `docs/nghiep-vu-va-luong-chay-he-thong.md` | Business logic & system flow explanation (Vietnamese) |
 | `docs/observability/grafana-aeroponiciot-performance.json` | Grafana dashboard JSON |
 
 ---
