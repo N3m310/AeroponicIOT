@@ -7,6 +7,7 @@ let charts = {
     tds: null,
     temp: null,
     humidity: null,
+    light: null,
     allSensors: null
 };
 
@@ -57,11 +58,12 @@ async function loadDevices() {
 
         if (!response.ok) throw new Error('Không thể tải danh sách thiết bị');
 
-        const data = await response.json();
+        const json = await response.json();
+        const data = Auth.unwrapApiData(json);
         const deviceSelect = document.getElementById('deviceSelect');
         deviceSelect.innerHTML = '';
 
-        if (!data.devices || data.devices.length === 0) {
+        if (!data || !data.devices || data.devices.length === 0) {
             deviceSelect.innerHTML = '<option value="">Chưa có thiết bị</option>';
             clearChartsAndStats();
             document.getElementById('alertsList').innerHTML = '<p>Chưa có thiết bị để hiển thị cảnh báo.</p>';
@@ -114,7 +116,8 @@ async function loadCharts() {
 
         if (!response.ok) throw new Error('Không thể tải dữ liệu biểu đồ');
 
-        const data = await response.json();
+        const json = await response.json();
+        const data = Auth.unwrapApiData(json);
         renderCharts(data, hours);
         loadAlerts(deviceId);
     } catch (error) {
@@ -132,17 +135,25 @@ function renderCharts(data, hours) {
     }
 
     // Prepare data
-    const labels = data.map(d => new Date(d.timestamp).toLocaleString('vi-VN', {
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    }));
+    const labels = data.map(d => {
+        let ts = d.timestamp;
+        if (ts && !ts.endsWith('Z') && !ts.includes('+')) {
+            ts += 'Z';
+        }
+        return new Date(ts).toLocaleString('vi-VN', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    });
 
     const phData = data.map(d => d.ph);
     const tdsData = data.map(d => d.tds);
     const tempData = data.map(d => d.waterTemperature);
     const humidityData = data.map(d => d.airHumidity);
+    const lightData = data.map(d => d.light ?? d.lightIntensity ?? null);
 
     // Chart config
     const chartConfig = {
@@ -205,6 +216,17 @@ function renderCharts(data, hours) {
         fill: true
     }], chartConfig);
 
+    // Light Intensity Chart
+    renderChart('light', 'Cường độ ánh sáng', labels, [{
+        label: 'Ánh sáng (lux)',
+        data: lightData,
+        borderColor: '#eab308',
+        backgroundColor: 'rgba(234, 179, 8, 0.1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true
+    }], chartConfig);
+
     // All Sensors Combined
     renderChart('allSensors', 'Tất cả thông số cảm biến (chuẩn hóa)', labels, [
         {
@@ -238,6 +260,14 @@ function renderCharts(data, hours) {
             borderWidth: 2,
             tension: 0.4,
             yAxisID: 'y3'
+        },
+        {
+            label: 'Ánh sáng (lux/1000)',
+            data: lightData.map(v => v !== null ? v / 1000 : null),
+            borderColor: '#eab308',
+            borderWidth: 2,
+            tension: 0.4,
+            yAxisID: 'y4'
         }
     ], {
         responsive: true,
@@ -268,6 +298,12 @@ function renderCharts(data, hours) {
                 type: 'linear',
                 position: 'right',
                 title: { display: true, text: 'Độ ẩm (%)' }
+            },
+            y4: {
+                type: 'linear',
+                position: 'right',
+                title: { display: true, text: 'Ánh sáng (lux/1000)' },
+                grid: { drawOnChartArea: false }
             }
         }
     });
@@ -277,6 +313,7 @@ function renderCharts(data, hours) {
     displayStats('tds', tdsData);
     displayStats('temp', tempData);
     displayStats('humidity', humidityData);
+    displayStats('light', lightData);
 }
 
 function clearChartsAndStats() {
@@ -287,7 +324,7 @@ function clearChartsAndStats() {
         }
     });
 
-    ['phStats', 'tdsStats', 'tempStats', 'humidityStats'].forEach(id => {
+    ['phStats', 'tdsStats', 'tempStats', 'humidityStats', 'lightStats'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.innerHTML = '<div class="stat-item"><span>Chưa có dữ liệu</span></div>';
@@ -344,10 +381,11 @@ async function loadAlerts(deviceId) {
 
         if (!response.ok) throw new Error('Không thể tải cảnh báo');
 
-        const data = await response.json();
+        const json = await response.json();
+        const data = Auth.unwrapApiData(json);
         const alertsList = document.getElementById('alertsList');
         
-        if (data.activeAlerts.length === 0) {
+        if (!data || !data.activeAlerts || data.activeAlerts.length === 0) {
             alertsList.innerHTML = '<p class="no-alerts">Không có cảnh báo đang hoạt động 🎉</p>';
             return;
         }
@@ -356,7 +394,11 @@ async function loadAlerts(deviceId) {
         data.activeAlerts.slice(0, 10).forEach(alert => {
             const alertItem = document.createElement('div');
             alertItem.className = 'alert-item';
-            const timestamp = new Date(alert.timestamp).toLocaleString('vi-VN');
+            let ts = alert.timestamp;
+            if (ts && !ts.endsWith('Z') && !ts.includes('+')) {
+                ts += 'Z';
+            }
+            const timestamp = new Date(ts).toLocaleString('vi-VN');
             let className = 'alert-info';
             if (alert.type === 1) className = 'alert-warning';
             if (alert.type === 2) className = 'alert-error';

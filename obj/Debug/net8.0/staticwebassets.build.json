@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "BAiY01FlLW7+94KwyEHnXCZNBsLnQG4sW+A0993BmjE=",
+  "Hash": "+Ek/ww/eUe+xyFM3SnpBy66xC44nwfVJqaH3/tR9J5Y=",
   "Source": "AeroponicIOT",
   "BasePath": "_content/AeroponicIOT",
   "Mode": "Default",
@@ -169,6 +169,25 @@
       "OriginalItemSpec": "wwwroot\\css\\devices.css"
     },
     {
+      "Identity": "D:\\SWD\\AeroponicIOT\\wwwroot\\css\\gardens.css",
+      "SourceId": "AeroponicIOT",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\SWD\\AeroponicIOT\\wwwroot\\",
+      "BasePath": "_content/AeroponicIOT",
+      "RelativePath": "css/gardens.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\gardens.css"
+    },
+    {
       "Identity": "D:\\SWD\\AeroponicIOT\\wwwroot\\css\\register.css",
       "SourceId": "AeroponicIOT",
       "SourceType": "Discovered",
@@ -224,6 +243,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\devices.html"
+    },
+    {
+      "Identity": "D:\\SWD\\AeroponicIOT\\wwwroot\\gardens.html",
+      "SourceId": "AeroponicIOT",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\SWD\\AeroponicIOT\\wwwroot\\",
+      "BasePath": "_content/AeroponicIOT",
+      "RelativePath": "gardens.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\gardens.html"
     },
     {
       "Identity": "D:\\SWD\\AeroponicIOT\\wwwroot\\health.html",
@@ -395,6 +433,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\devices.js"
+    },
+    {
+      "Identity": "D:\\SWD\\AeroponicIOT\\wwwroot\\js\\gardens.js",
+      "SourceId": "AeroponicIOT",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\SWD\\AeroponicIOT\\wwwroot\\",
+      "BasePath": "_content/AeroponicIOT",
+      "RelativePath": "js/gardens.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\gardens.js"
     },
     {
       "Identity": "D:\\SWD\\AeroponicIOT\\wwwroot\\js\\health.js",

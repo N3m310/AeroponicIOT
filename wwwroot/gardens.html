@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý khu vườn - Smart Farm IoT</title>
+    <link rel="stylesheet" href="css/gardens.css">
+</head>
+<body>
+    <div class="container">
+        <div id="gardensHeader"></div>
+
+        <div class="content">
+            <section class="form-section">
+                <div class="section-header-row">
+                    <h2 class="section-title" id="formTitle">Tạo khu vườn mới</h2>
+                    <button id="resetFormBtn" type="button" class="btn-secondary">Hủy / Làm mới</button>
+                </div>
+                <p class="helper-text">Khu vườn là nơi chứa các thiết bị giám sát. Tất cả tài khoản đều có quyền tạo khu vườn, nhưng chỉ Quản trị viên mới được quyền Chỉnh sửa hoặc Xóa khu vườn đã tạo.</p>
+                <div id="adminNotice" class="admin-only-badge" style="display: none;">🔒 Chế độ Người dùng (Chỉ xem/Thêm mới)</div>
+
+                <form id="gardenForm">
+                    <input type="hidden" id="gardenId">
+                    
+                    <div class="form-group">
+                        <label for="gardenName">Tên khu vườn:</label>
+                        <input type="text" id="gardenName" maxlength="100" required placeholder="Ví dụ: Khu vườn A1, Greenhouse B">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gardenLocation">Vị trí:</label>
+                        <input type="text" id="gardenLocation" maxlength="200" placeholder="Ví dụ: Tầng thượng nhà A, Khu vực trung tâm">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gardenCropSelect">Cây trồng đang canh tác:</label>
+                        <select id="gardenCropSelect" style="width: 100%; border: 1px solid var(--border-color); border-radius: 4px; padding: 0.5rem; font-family: inherit; box-sizing: border-box;">
+                            <option value="">-- Chưa gán cây trồng --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gardenDescription">Mô tả chi tiết:</label>
+                        <textarea id="gardenDescription" rows="3" placeholder="Ghi chú về diện tích, loại cây đặc thù hoặc ghi chú chung" style="width: 100%; border: 1px solid var(--border-color); border-radius: 4px; padding: 0.5rem; font-family: inherit; box-sizing: border-box;"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" id="submitBtn">Lưu khu vườn</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="devices-section">
+                <h2 class="section-title">Danh sách khu vườn hiện có</h2>
+                <div id="gardensGrid" class="gardens-grid">
+                    <p class="loading-text">Đang tải danh sách khu vườn...</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/gardens.js"></script>
+</body>
+</html>

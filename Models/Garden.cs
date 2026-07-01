@@ -25,6 +25,12 @@ public class Garden
     [Column("created_at")]
     public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [Column("current_crop_id")]
+    public int? CurrentCropId { get; set; }
+
+    [ForeignKey("CurrentCropId")]
+    public Crop? CurrentCrop { get; set; }
+
     // Navigation properties
     public ICollection<Device> Devices { get; set; } = new List<Device>();
 }

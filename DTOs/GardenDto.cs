@@ -10,5 +10,7 @@ public class GardenDto
     public string? Description { get; set; }
     public DateTime? CreatedAt { get; set; }
     public int DeviceCount { get; set; }
+    public int? CurrentCropId { get; set; }
+    public string? CropName { get; set; }
 }
 

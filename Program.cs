@@ -389,8 +389,23 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Serve static files
-app.UseStaticFiles();
+// Serve static files (with cache-busting headers in development mode)
+if (app.Environment.IsDevelopment())
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        OnPrepareResponse = ctx =>
+        {
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+            ctx.Context.Response.Headers.Append("Pragma", "no-cache");
+            ctx.Context.Response.Headers.Append("Expires", "0");
+        }
+    });
+}
+else
+{
+    app.UseStaticFiles();
+}
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
@@ -413,6 +428,12 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 app.MapGet("/", async context =>
 {
     context.Response.ContentType = "text/html";
+    if (app.Environment.IsDevelopment())
+    {
+        context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+        context.Response.Headers.Append("Pragma", "no-cache");
+        context.Response.Headers.Append("Expires", "0");
+    }
     await context.Response.SendFileAsync("wwwroot/index.html");
 });
 

@@ -34,6 +34,7 @@ public class GardenController : ControllerBase
         {
             var gardens = await _context.Gardens
                 .Include(g => g.Devices)
+                .Include(g => g.CurrentCrop)
                 .ToListAsync();
 
             var dtos = gardens.Select(g => new GardenDto
@@ -43,7 +44,9 @@ public class GardenController : ControllerBase
                 Location = g.Location,
                 Description = g.Description,
                 CreatedAt = g.CreatedAt,
-                DeviceCount = g.Devices?.Count ?? 0
+                DeviceCount = g.Devices?.Count ?? 0,
+                CurrentCropId = g.CurrentCropId,
+                CropName = g.CurrentCrop?.Name
             }).ToList();
 
             return Ok(ApiResponse.Success(dtos, "Gardens retrieved"));
@@ -62,6 +65,7 @@ public class GardenController : ControllerBase
         {
             var garden = await _context.Gardens
                 .Include(g => g.Devices)
+                .Include(g => g.CurrentCrop)
                 .FirstOrDefaultAsync(g => g.Id == id);
 
             if (garden == null)
@@ -76,7 +80,9 @@ public class GardenController : ControllerBase
                 Location = garden.Location,
                 Description = garden.Description,
                 CreatedAt = garden.CreatedAt,
-                DeviceCount = garden.Devices?.Count ?? 0
+                DeviceCount = garden.Devices?.Count ?? 0,
+                CurrentCropId = garden.CurrentCropId,
+                CropName = garden.CurrentCrop?.Name
             };
 
             return Ok(ApiResponse.Success(dto, "Garden retrieved"));
@@ -103,6 +109,7 @@ public class GardenController : ControllerBase
                 Name = dto.Name,
                 Location = dto.Location,
                 Description = dto.Description,
+                CurrentCropId = dto.CurrentCropId,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -112,6 +119,11 @@ public class GardenController : ControllerBase
             dto.Id = garden.Id;
             dto.CreatedAt = garden.CreatedAt;
             dto.DeviceCount = 0;
+            if (garden.CurrentCropId.HasValue)
+            {
+                var crop = await _context.Crops.FindAsync(garden.CurrentCropId.Value);
+                dto.CropName = crop?.Name;
+            }
 
             return CreatedAtAction(nameof(GetGardenById), new { id = garden.Id }, ApiResponse.Success(dto, "Garden created"));
         }
@@ -134,16 +146,37 @@ public class GardenController : ControllerBase
                 return ApiProblem(StatusCodes.Status404NotFound, "Not Found", "Garden not found");
             }
 
+            var cropChanged = garden.CurrentCropId != dto.CurrentCropId;
             garden.Name = dto.Name;
             garden.Location = dto.Location;
             garden.Description = dto.Description;
+            garden.CurrentCropId = dto.CurrentCropId;
 
             _context.Gardens.Update(garden);
             await _context.SaveChangesAsync();
 
+            if (cropChanged)
+            {
+                var devices = await _context.Devices.Where(d => d.GardenId == garden.Id).ToListAsync();
+                foreach (var device in devices)
+                {
+                    if (device.CurrentCropId != garden.CurrentCropId)
+                    {
+                        device.CurrentCropId = garden.CurrentCropId;
+                        device.CropAssignedAt = garden.CurrentCropId.HasValue ? DateTime.UtcNow : null;
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+
             dto.Id = garden.Id;
             dto.CreatedAt = garden.CreatedAt;
             dto.DeviceCount = await _context.Devices.CountAsync(d => d.GardenId == garden.Id);
+            if (garden.CurrentCropId.HasValue)
+            {
+                var crop = await _context.Crops.FindAsync(garden.CurrentCropId.Value);
+                dto.CropName = crop?.Name;
+            }
 
             return Ok(ApiResponse.Success(dto, "Garden updated"));
         }

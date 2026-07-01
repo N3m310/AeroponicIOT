@@ -33,13 +33,19 @@ function checkAuthentication() {
         return;
     }
 
-    const username = localStorage.getItem('username');
     const role = localStorage.getItem('role');
+    if (role !== 'Administrator') {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    const username = localStorage.getItem('username');
     const header = document.getElementById('devicesHeader');
     header.innerHTML = `
         <span>${username} <small>(${role})</small></span>
         <button id="backBtn" class="btn-secondary" onclick="goBack()">← Về bảng điều khiển</button>
         <button id="cropsBtn" class="btn-secondary" onclick="goToCrops()">🌿 Cây trồng</button>
+        <button id="gardensBtn" class="btn-secondary" onclick="goToGardens()">🏡 Khu vườn</button>
         <button id="logoutBtn" class="btn-secondary">Đăng xuất</button>
     `;
     document.getElementById('logoutBtn').addEventListener('click', logout);
@@ -72,7 +78,8 @@ async function loadCrops() {
 
         if (!response.ok) throw new Error('Không thể tải danh sách cây trồng');
 
-        crops = await response.json();
+        const json = await response.json();
+        crops = Auth.unwrapApiData(json) || [];
         populateCropSelects();
     } catch (error) {
         console.error('Error loading crops:', error);
@@ -92,7 +99,8 @@ async function loadGardens() {
 
         if (!response.ok) throw new Error('Không thể tải danh sách khu vườn');
 
-        gardens = await response.json();
+        const json = await response.json();
+        gardens = Auth.unwrapApiData(json) || [];
         populateGardenSelects();
     } catch (error) {
         console.error('Error loading gardens:', error);
@@ -145,7 +153,8 @@ async function loadPendingDevices() {
 
         if (!response.ok) throw new Error('Không thể tải thiết bị chờ nhận quyền');
 
-        const pendingDevices = await response.json();
+        const json = await response.json();
+        const pendingDevices = Auth.unwrapApiData(json) || [];
         renderPendingDevices(pendingDevices);
     } catch (error) {
         console.error('Error loading pending devices:', error);
@@ -243,7 +252,8 @@ async function loadDevices() {
 
         if (!response.ok) throw new Error('Không thể tải danh sách thiết bị');
 
-        devices = await response.json();
+        const json = await response.json();
+        devices = Auth.unwrapApiData(json) || [];
         displayDevices();
     } catch (error) {
         console.error('Error loading devices:', error);
@@ -477,6 +487,10 @@ function goBack() {
 
 function goToCrops() {
     window.location.href = 'crops.html';
+}
+
+function goToGardens() {
+    window.location.href = 'gardens.html';
 }
 
 // Show success

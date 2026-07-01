@@ -47,6 +47,7 @@ function checkAuthentication() {
     header.innerHTML = `
         <span>${username} <small>(${role})</small></span>
         <button id="backBtn" class="btn-secondary" onclick="goBack()">← Về bảng điều khiển</button>
+        <button id="gardensBtn" class="btn-secondary" onclick="goToGardens()">🏡 Khu vườn</button>
         <button id="logoutBtn" class="btn-secondary">Đăng xuất</button>
     `;
     document.getElementById('logoutBtn').addEventListener('click', logout);
@@ -363,6 +364,10 @@ function logout() {
 // Go back to dashboard
 function goBack() {
     window.location.href = 'index.html';
+}
+
+function goToGardens() {
+    window.location.href = 'gardens.html';
 }
 
 // Show success

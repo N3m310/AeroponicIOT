@@ -19,18 +19,21 @@ function checkAuthentication() {
 
     const username = localStorage.getItem('username');
     const role = localStorage.getItem('role');
+    const isAdmin = typeof role === 'string' && role.trim().toLowerCase() === 'administrator';
     const header = document.getElementById('cropsHeader');
     header.innerHTML = `
         <span>${username} <small>(${role})</small></span>
         <div>
             <button id="backDashboardBtn" class="btn-secondary" type="button">← Bảng điều khiển</button>
-            <button id="goDevicesBtn" class="btn-secondary" type="button">🔧 Thiết bị</button>
+            ${isAdmin ? '<button id="goDevicesBtn" class="btn-secondary" type="button">🔧 Thiết bị</button>' : ''}
+            <button id="goGardensBtn" class="btn-secondary" type="button">🏡 Khu vườn</button>
             <button id="logoutBtn" class="btn-secondary" type="button">Đăng xuất</button>
         </div>
     `;
 
     document.getElementById('backDashboardBtn').addEventListener('click', () => window.location.href = 'index.html');
-    document.getElementById('goDevicesBtn').addEventListener('click', () => window.location.href = 'devices.html');
+    document.getElementById('goDevicesBtn')?.addEventListener('click', () => window.location.href = 'devices.html');
+    document.getElementById('goGardensBtn').addEventListener('click', () => window.location.href = 'gardens.html');
     document.getElementById('logoutBtn').addEventListener('click', logout);
 
 }
@@ -54,7 +57,8 @@ async function loadCrops() {
         }
         if (!response.ok) throw new Error('Không thể tải cây trồng');
 
-        crops = await response.json();
+        const json = await response.json();
+        crops = Auth.unwrapApiData(json) || [];
         renderCrops();
     } catch (error) {
         console.error('Error loading crops:', error);
@@ -98,7 +102,9 @@ async function editCrop(cropId) {
         }
         if (!response.ok) throw new Error('Không thể tải chi tiết cây trồng');
 
-        const crop = await response.json();
+        const json = await response.json();
+        const crop = Auth.unwrapApiData(json);
+        if (!crop) return;
         document.getElementById('cropId').value = crop.id;
         document.getElementById('cropName').value = crop.name || '';
         document.getElementById('cropDescription').value = crop.description || '';

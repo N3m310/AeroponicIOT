@@ -47,9 +47,26 @@ function applyStatusColor(element, isHealthy) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    checkAuthentication();
     loadHealth();
     setInterval(loadHealth, 10000);
 });
+
+function checkAuthentication() {
+    if (typeof Auth === 'undefined') return;
+    const token = Auth.getStoredToken();
+    if (!token) {
+        Auth.clearAuthStorage();
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const role = localStorage.getItem('role');
+    if (role !== 'Administrator') {
+        window.location.href = 'index.html';
+        return;
+    }
+}
 
 async function loadHealth() {
     const statusEl = document.getElementById('healthStatus');

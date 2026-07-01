@@ -37,6 +37,13 @@ const tempStatus = document.getElementById('tempStatus');
 const humidityStatus = document.getElementById('humidityStatus');
 const lightStatus = document.getElementById('lightStatus');
 
+const addDeviceBtn = document.getElementById('addDeviceBtn');
+const addDeviceModal = document.getElementById('addDeviceModal');
+const addDeviceModalClose = document.getElementById('addDeviceModalClose');
+const addDeviceForm = document.getElementById('addDeviceForm');
+const deviceSelectDropdown = document.getElementById('deviceSelectDropdown');
+const newDeviceGarden = document.getElementById('newDeviceGarden');
+
 let profileModal = null;
 let dashboardDevices = [];
 let crops = [];
@@ -50,9 +57,10 @@ const actuatorStates = {
 };
 
 let selectedGardenId = localStorage.getItem('selectedGardenId') || '';
+let currentUserIsAdmin = false;
 
 // Initialize dashboard
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     bindNavigationButtons();
     initManualActuatorControls();
 
@@ -61,9 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadCrops();
     loadGardens();
-    
+
     loadDashboardData();
     setInterval(loadDashboardData, 10000); // Refresh every 10 seconds
+
+    if (addDeviceBtn) addDeviceBtn.addEventListener('click', openAddDeviceModal);
+    if (addDeviceModalClose) addDeviceModalClose.addEventListener('click', closeAddDeviceModal);
+    if (addDeviceForm) addDeviceForm.addEventListener('submit', handleAddDevice);
 });
 
 // Bind nav buttons defensively (works even if inline onclick handlers are blocked)
@@ -72,6 +84,7 @@ function bindNavigationButtons() {
     document.getElementById('automationBtn')?.addEventListener('click', goToAutomation);
     document.getElementById('devicesBtn')?.addEventListener('click', goToDevices);
     document.getElementById('cropsBtn')?.addEventListener('click', goToCrops);
+    document.getElementById('gardensBtn')?.addEventListener('click', goToGardens);
     document.getElementById('healthBtn')?.addEventListener('click', goToHealth);
     document.getElementById('usersBtn')?.addEventListener('click', goToUsers);
 }
@@ -85,14 +98,25 @@ function checkAuthentication() {
         return;
     }
 
-    // Add user info to header
     const username = localStorage.getItem('username');
     const role = localStorage.getItem('role');
 
-    const isAdmin = isAdministratorRole(role);
+    currentUserIsAdmin = isAdministratorRole(role);
     const usersBtn = document.getElementById('usersBtn');
     if (usersBtn) {
-        usersBtn.hidden = !isAdmin;
+        usersBtn.hidden = !currentUserIsAdmin;
+    }
+    const devicesBtn = document.getElementById('devicesBtn');
+    if (devicesBtn) {
+        devicesBtn.hidden = !currentUserIsAdmin;
+    }
+    const addDeviceBtn = document.getElementById('addDeviceBtn');
+    if (addDeviceBtn) {
+        addDeviceBtn.hidden = !currentUserIsAdmin;
+    }
+    const healthBtn = document.getElementById('healthBtn');
+    if (healthBtn) {
+        healthBtn.hidden = !currentUserIsAdmin;
     }
 
     // Create user info element
@@ -119,27 +143,23 @@ function checkAuthentication() {
             </div>
         </div>
         <span>${username} <small>(${role})</small></span>
-        ${isAdmin ? '<button id="usersAdminBtn" type="button" class="btn-secondary">👥 Người dùng</button>' : ''}
         <button id="profileBtn" class="btn-secondary">👤 Tài khoản</button>
         <button id="logoutBtn" class="btn-secondary">Đăng xuất</button>
     `;
     headerControls.appendChild(userInfo);
 
-    if (isAdmin) {
-        document.getElementById('usersAdminBtn')?.addEventListener('click', goToUsers);
-    }
     ensureProfileModal();
-    
+
     // Load notifications
     loadNotifications();
     setInterval(loadNotifications, 10000); // Check every 10 seconds
-    
+
     // Notification bell click handler
     document.getElementById('notificationBell').addEventListener('click', toggleNotificationDropdown);
     document.getElementById('clearNotificationsBtn').addEventListener('click', clearAllNotifications);
     document.getElementById('soundToggle').addEventListener('click', toggleNotificationSound);
     document.getElementById('profileBtn').addEventListener('click', openProfileModal);
-    
+
     document.getElementById('logoutBtn').addEventListener('click', logout);
 }
 
@@ -228,28 +248,28 @@ async function loadNotifications() {
         const response = await fetch(`${API_BASE}/notification/unread`, {
             headers: getAuthHeaders()
         });
-        
+
         if (response.status === 401) {
             logout();
             return;
         }
-        
+
         if (!response.ok) return;
-        
+
         const data = Auth.unwrapApiData(await response.json());
         const badge = document.getElementById('notificationBadge');
         const notificationsList = document.getElementById('notificationsList');
-        
+
         // Check if new notifications arrived
         if (data.unreadCount > lastUnreadCount && soundEnabled && data.unreadCount > 0) {
             playNotificationSound();
         }
         lastUnreadCount = data.unreadCount;
-        
+
         if (data.unreadCount > 0) {
             badge.textContent = data.unreadCount;
             badge.style.display = 'inline-block';
-            
+
             notificationsList.innerHTML = '';
             data.notifications.forEach(notification => {
                 const notifElement = document.createElement('div');
@@ -315,22 +335,22 @@ function playNotificationSound() {
     try {
         // Create audio context
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        
+
         // Create oscillator and gain nodes for beep sound
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-        
+
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
-        
+
         // Set frequency and duration for pleasant notification beep
         oscillator.frequency.value = 800; // Hz
         oscillator.type = 'sine';
-        
+
         // Volume envelope
         gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-        
+
         // Play sound
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.3);
@@ -363,6 +383,9 @@ window.addEventListener('click', (e) => {
     if (e.target === gardenModal) {
         closeGardenModal();
     }
+    if (e.target === addDeviceModal) {
+        closeAddDeviceModal();
+    }
     if (profileModal && e.target === profileModal) {
         closeProfileModal();
     }
@@ -377,6 +400,123 @@ function closeGardenModal() {
     if (!gardenModal) return;
     gardenModal.style.display = 'none';
     gardenForm?.reset();
+}
+
+async function openAddDeviceModal() {
+    if (!addDeviceModal) return;
+    addDeviceModal.style.display = 'block';
+
+    // Populate gardens select
+    if (newDeviceGarden) {
+        newDeviceGarden.innerHTML = '<option value="">-- Chọn khu vườn --</option>';
+        gardens.forEach(garden => {
+            const opt = document.createElement('option');
+            opt.value = garden.id;
+            opt.textContent = garden.name;
+            if (selectedGardenId === String(garden.id)) {
+                opt.selected = true;
+            }
+            newDeviceGarden.appendChild(opt);
+        });
+    }
+
+    // Populate devices select from database
+    if (deviceSelectDropdown) {
+        deviceSelectDropdown.innerHTML = '<option value="">Đang tải danh sách thiết bị...</option>';
+        try {
+            const response = await fetch(`${API_BASE}/device`, { headers: getAuthHeaders() });
+            if (response.status === 401) {
+                logout();
+                return;
+            }
+            if (!response.ok) throw new Error('Không thể tải danh sách thiết bị');
+
+            const allDevices = Auth.unwrapApiData(await response.json());
+            
+            // Filter to show ONLY devices that do not have a garden assigned (gardenId is null/undefined)
+            const unassignedDevices = allDevices.filter(dev => dev.gardenId === null || dev.gardenId === undefined);
+
+            if (!Array.isArray(unassignedDevices) || unassignedDevices.length === 0) {
+                deviceSelectDropdown.innerHTML = '<option value="">Không có thiết bị trống (chưa gán vườn) nào</option>';
+                return;
+            }
+
+            deviceSelectDropdown.innerHTML = '<option value="">-- Chọn thiết bị để liên kết --</option>';
+            unassignedDevices.forEach(dev => {
+                const opt = document.createElement('option');
+                opt.value = dev.id;
+                // Store fields in data-attributes to preserve them during PUT
+                opt.dataset.name = dev.name || 'Unknown Device';
+                opt.dataset.crop = dev.currentCropId || '';
+                opt.dataset.status = dev.status || 'Active';
+
+                opt.textContent = `${dev.name || 'Unknown'} (${dev.macAddress})`;
+                deviceSelectDropdown.appendChild(opt);
+            });
+        } catch (error) {
+            console.error('Error loading devices for dropdown:', error);
+            deviceSelectDropdown.innerHTML = '<option value="">Lỗi khi tải danh sách thiết bị</option>';
+        }
+    }
+}
+
+function closeAddDeviceModal() {
+    if (!addDeviceModal) return;
+    addDeviceModal.style.display = 'none';
+    if (addDeviceForm) addDeviceForm.reset();
+}
+
+async function handleAddDevice(e) {
+    e.preventDefault();
+
+    const deviceId = deviceSelectDropdown.value;
+    const gardenId = newDeviceGarden.value;
+
+    if (!deviceId || !gardenId) {
+        showError('Vui lòng chọn thiết bị và khu vườn để liên kết');
+        return;
+    }
+
+    const selectedOpt = deviceSelectDropdown.options[deviceSelectDropdown.selectedIndex];
+    const devName = selectedOpt.dataset.name;
+    const devCrop = selectedOpt.dataset.crop;
+    const devStatus = selectedOpt.dataset.status;
+
+    try {
+        const payload = {
+            name: devName,
+            gardenId: parseInt(gardenId),
+            currentCropId: devCrop ? parseInt(devCrop) : null,
+            status: devStatus
+        };
+
+        const response = await fetch(`${API_BASE}/device/${deviceId}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(payload)
+        });
+
+        if (response.status === 401) {
+            logout();
+            return;
+        }
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.detail || 'Không thể liên kết thiết bị');
+        }
+
+        showSuccess('Liên kết thiết bị vào khu vườn thành công!');
+        closeAddDeviceModal();
+
+        // Refresh gardens count, rendering and reload dashboard views
+        await loadGardens();
+        renderGardenPills();
+        loadDashboardData();
+    } catch (error) {
+        console.error('Error updating device garden:', error);
+        showError(error.message || 'Không thể liên kết thiết bị');
+    }
 }
 
 async function loadGardens() {
@@ -490,11 +630,12 @@ async function handleCreateGarden(e) {
         }
 
         const created = await response.json();
+        const unwrapped = Auth.unwrapApiData(created);
         showSuccess('Tạo khu vườn thành công');
         closeGardenModal();
         await loadGardens();
 
-        selectedGardenId = String(created.id);
+        selectedGardenId = unwrapped && unwrapped.id ? String(unwrapped.id) : '';
         localStorage.setItem('selectedGardenId', selectedGardenId);
         renderGardenPills();
 
@@ -513,12 +654,12 @@ async function loadDashboardData() {
             method: 'GET',
             headers: getAuthHeaders()
         });
-        
+
         if (response.status === 401) {
             logout();
             return;
         }
-        
+
         if (!response.ok) throw new Error('Không thể tải dữ liệu bảng điều khiển');
 
         const data = Auth.unwrapApiData(await response.json());
@@ -569,11 +710,11 @@ function updateKpiCards(data) {
     const avgHumidityValue = avg(sensors.map(s => s.airHumidity));
     const avgLightValue = avg(sensors.map(s => s.lightIntensity));
 
-    avgTemp.textContent = avgTempValue !== null ? `${avgTempValue.toFixed(1)}°C` : '28°C';
-    avgHumidity.textContent = avgHumidityValue !== null ? `${avgHumidityValue.toFixed(0)}%` : '70%';
-    avgLight.textContent = avgLightValue !== null ? `${avgLightValue.toFixed(0)} Lux` : '12000 Lux';
-    avgPh.textContent = avgPhValue !== null ? avgPhValue.toFixed(2) : '6.5';
-    avgTds.textContent = avgTdsValue !== null ? `${avgTdsValue.toFixed(0)} ppm` : '850 ppm';
+    avgTemp.textContent = avgTempValue !== null ? `${avgTempValue.toFixed(1)}°C` : '--';
+    avgHumidity.textContent = avgHumidityValue !== null ? `${avgHumidityValue.toFixed(0)}%` : '--';
+    avgLight.textContent = avgLightValue !== null ? `${avgLightValue.toFixed(0)} Lux` : '--';
+    avgPh.textContent = avgPhValue !== null ? avgPhValue.toFixed(2) : '--';
+    avgTds.textContent = avgTdsValue !== null ? `${avgTdsValue.toFixed(0)} ppm` : '--';
 
     tempStatus.textContent = getTempStatus(avgTempValue);
     humidityStatus.textContent = getHumidityStatus(avgHumidityValue);
@@ -666,7 +807,17 @@ function createDeviceCard(device) {
     }
     sensorHtml += '</div>';
 
-    const lastSeen = device.lastSeen ? new Date(device.lastSeen).toLocaleString('vi-VN') : 'Chưa bao giờ';
+    let ls = device.lastSeen;
+    if (ls && !ls.endsWith('Z') && !ls.includes('+')) {
+        ls += 'Z';
+    }
+    const lastSeen = ls ? new Date(ls).toLocaleString('vi-VN') : 'Chưa bao giờ';
+
+    const actionsHtml = currentUserIsAdmin ? `
+        <div class="device-actions">
+            <button class="btn-secondary" onclick="openDeviceEditModal(${device.id})">Sửa nhanh</button>
+        </div>
+    ` : '';
 
     card.innerHTML = `
         <div class="device-header">
@@ -679,9 +830,7 @@ function createDeviceCard(device) {
         <div class="device-crop">Cây trồng: ${device.cropName || 'Chưa gán'}</div>
         <div>Lần cuối online: ${lastSeen}</div>
         ${sensorHtml}
-        <div class="device-actions">
-            <button class="btn-secondary" onclick="openDeviceEditModal(${device.id})">Sửa nhanh</button>
-        </div>
+        ${actionsHtml}
     `;
 
     return card;
@@ -752,6 +901,7 @@ function createAlertItem(alert) {
 
 // Update device select for manual control
 function updateDeviceSelect(devices) {
+    if (!deviceSelect) return;
     deviceSelect.innerHTML = '<option value="">Chọn thiết bị</option>';
 
     devices.forEach(device => {
@@ -795,6 +945,7 @@ function applyActuatorState(actuator, isOn) {
 }
 
 async function sendManualControlCommand(actuator, action) {
+    if (!deviceSelect) return;
     const selectedMacAddress = deviceSelect.value;
     if (!selectedMacAddress) {
         showError('Vui lòng chọn thiết bị trước khi điều khiển');
@@ -1157,6 +1308,10 @@ function goToHealth() {
 
 function goToUsers() {
     window.location.href = 'users.html';
+}
+
+function goToGardens() {
+    window.location.href = 'gardens.html';
 }
 
 function isAdministratorRole(role) {

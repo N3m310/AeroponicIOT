@@ -447,6 +447,7 @@ public class DeviceController : ControllerBase
                 }
             }
 
+            int? inheritedCropId = null;
             if (createDto.GardenId.HasValue)
             {
                 var garden = await _context.Gardens.FindAsync(createDto.GardenId);
@@ -454,14 +455,15 @@ public class DeviceController : ControllerBase
                 {
                     return ApiProblem(StatusCodes.Status400BadRequest, "Bad Request", "Garden not found");
                 }
+                inheritedCropId = garden.CurrentCropId;
             }
 
             var device = new Device
             {
                 DeviceName = createDto.Name,
                 MacAddress = normalizedMac,
-                CurrentCropId = createDto.CurrentCropId,
-                CropAssignedAt = createDto.CurrentCropId.HasValue ? DateTime.UtcNow : null,
+                CurrentCropId = inheritedCropId,
+                CropAssignedAt = inheritedCropId.HasValue ? DateTime.UtcNow : null,
                 GardenId = createDto.GardenId,
                 UserId = userId,
                 Status = DeviceStatusValues.Active,
@@ -530,27 +532,7 @@ public class DeviceController : ControllerBase
                 return Forbid();
             }
 
-            // Validate crop if provided
-            if (updateDto.CurrentCropId.HasValue)
-            {
-                var crop = await _context.Crops.FindAsync(updateDto.CurrentCropId);
-                if (crop == null)
-                {
-                    return ApiProblem(StatusCodes.Status400BadRequest, "Bad Request", "Crop not found");
-                }
-
-                if (device.CurrentCropId != updateDto.CurrentCropId)
-                {
-                    device.CropAssignedAt = DateTime.UtcNow;
-                }
-                device.CurrentCropId = updateDto.CurrentCropId;
-            }
-            else
-            {
-                device.CurrentCropId = null;
-                device.CropAssignedAt = null;
-            }
-
+            int? inheritedCropId = null;
             if (updateDto.GardenId.HasValue)
             {
                 var garden = await _context.Gardens.FindAsync(updateDto.GardenId);
@@ -559,11 +541,18 @@ public class DeviceController : ControllerBase
                     return ApiProblem(StatusCodes.Status400BadRequest, "Bad Request", "Garden not found");
                 }
                 device.GardenId = updateDto.GardenId;
+                inheritedCropId = garden.CurrentCropId;
             }
             else
             {
                 device.GardenId = null;
             }
+
+            if (device.CurrentCropId != inheritedCropId)
+            {
+                device.CropAssignedAt = inheritedCropId.HasValue ? DateTime.UtcNow : null;
+            }
+            device.CurrentCropId = inheritedCropId;
 
             device.DeviceName = updateDto.Name ?? device.DeviceName;
             if (!string.IsNullOrWhiteSpace(updateDto.Status))

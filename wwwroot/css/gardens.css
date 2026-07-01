@@ -1,0 +1,101 @@
+@import url('./devices.css');
+
+#gardensHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    color: white;
+    font-size: 1.1rem;
+}
+
+#gardensHeader small {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    margin-left: 0.5rem;
+}
+
+#gardensHeader button {
+    margin-left: 1rem;
+}
+
+#gardensHeader .btn-secondary {
+    background: #50cda7;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+#gardensHeader .btn-secondary:hover {
+    background: #3ebf97;
+}
+
+.section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.helper-text {
+    color: var(--text-light);
+    margin-bottom: 1.25rem;
+}
+
+.gardens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.garden-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.garden-card h3 {
+    margin-bottom: 0.75rem;
+    color: #047857;
+}
+
+.garden-meta {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.admin-only-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: #fef3c7;
+    color: #d97706;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 720px) {
+    #gardensHeader,
+    .section-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #gardensHeader button {
+        margin-left: 0;
+        margin-top: 0.75rem;
+    }
+}

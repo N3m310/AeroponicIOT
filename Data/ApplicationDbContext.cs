@@ -58,6 +58,12 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(d => d.GardenId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        modelBuilder.Entity<Garden>()
+            .HasOne(g => g.CurrentCrop)
+            .WithMany()
+            .HasForeignKey(g => g.CurrentCropId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         modelBuilder.Entity<User>()
             .HasMany(u => u.Devices)
             .WithOne(d => d.User)

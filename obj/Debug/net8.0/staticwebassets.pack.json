@@ -33,6 +33,10 @@
       "PackagePath": "staticwebassets\\css\\devices.css"
     },
     {
+      "Id": "D:\\SWD\\AeroponicIOT\\wwwroot\\css\\gardens.css",
+      "PackagePath": "staticwebassets\\css\\gardens.css"
+    },
+    {
       "Id": "D:\\SWD\\AeroponicIOT\\wwwroot\\css\\register.css",
       "PackagePath": "staticwebassets\\css\\register.css"
     },
@@ -43,6 +47,10 @@
     {
       "Id": "D:\\SWD\\AeroponicIOT\\wwwroot\\devices.html",
       "PackagePath": "staticwebassets\\devices.html"
+    },
+    {
+      "Id": "D:\\SWD\\AeroponicIOT\\wwwroot\\gardens.html",
+      "PackagePath": "staticwebassets\\gardens.html"
     },
     {
       "Id": "D:\\SWD\\AeroponicIOT\\wwwroot\\health.html",
@@ -79,6 +87,10 @@
     {
       "Id": "D:\\SWD\\AeroponicIOT\\wwwroot\\js\\devices.js",
       "PackagePath": "staticwebassets\\js\\devices.js"
+    },
+    {
+      "Id": "D:\\SWD\\AeroponicIOT\\wwwroot\\js\\gardens.js",
+      "PackagePath": "staticwebassets\\js\\gardens.js"
     },
     {
       "Id": "D:\\SWD\\AeroponicIOT\\wwwroot\\js\\health.js",
