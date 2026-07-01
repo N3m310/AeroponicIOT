@@ -53,6 +53,12 @@ public class CropStage
     [Column("pump_off_minutes")]
     public int? PumpOffMinutes { get; set; }
 
+    [Column("light_min")]
+    public int? LightMin { get; set; }
+
+    [Column("light_max")]
+    public int? LightMax { get; set; }
+
     // For backward compatibility - map to existing properties
     [NotMapped]
     public string Name => StageName ?? "Unknown";

@@ -259,6 +259,18 @@
         <member name="M:AeroponicIOT.Migrations.AddGardenCropRelationship.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:AeroponicIOT.Migrations.AddCropStageLightThresholds">
+            <inheritdoc />
+        </member>
+        <member name="M:AeroponicIOT.Migrations.AddCropStageLightThresholds.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:AeroponicIOT.Migrations.AddCropStageLightThresholds.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:AeroponicIOT.Migrations.AddCropStageLightThresholds.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="P:AeroponicIOT.Models.Device.ProtocolType">
             <summary>Communication protocol: "wifi" (default) or "zigbee".</summary>
         </member>

@@ -7035,19 +7035,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\fptvu\\.nuget\\packages\\": {}
+    "C:\\Users\\drago\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\SWD\\AeroponicIOT\\tests\\AeroponicIOT.Tests\\AeroponicIOT.Tests.csproj",
+      "projectUniqueName": "C:\\Users\\drago\\Desktop\\Studies\\aeroponic-iot\\tests\\AeroponicIOT.Tests\\AeroponicIOT.Tests.csproj",
       "projectName": "AeroponicIOT.Tests",
-      "projectPath": "D:\\SWD\\AeroponicIOT\\tests\\AeroponicIOT.Tests\\AeroponicIOT.Tests.csproj",
-      "packagesPath": "C:\\Users\\fptvu\\.nuget\\packages\\",
-      "outputPath": "D:\\SWD\\AeroponicIOT\\tests\\AeroponicIOT.Tests\\obj\\",
+      "projectPath": "C:\\Users\\drago\\Desktop\\Studies\\aeroponic-iot\\tests\\AeroponicIOT.Tests\\AeroponicIOT.Tests.csproj",
+      "packagesPath": "C:\\Users\\drago\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\drago\\Desktop\\Studies\\aeroponic-iot\\tests\\AeroponicIOT.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\fptvu\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\drago\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -7059,8 +7059,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\SWD\\AeroponicIOT\\AeroponicIOT.csproj": {
-              "projectPath": "D:\\SWD\\AeroponicIOT\\AeroponicIOT.csproj"
+            "C:\\Users\\drago\\Desktop\\Studies\\aeroponic-iot\\AeroponicIOT.csproj": {
+              "projectPath": "C:\\Users\\drago\\Desktop\\Studies\\aeroponic-iot\\AeroponicIOT.csproj"
             }
           }
         }
@@ -7069,7 +7069,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -7114,7 +7115,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.109/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

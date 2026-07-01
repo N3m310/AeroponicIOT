@@ -15,6 +15,8 @@ public class CropStageUpsertDto
     public int? HumidityMax { get; set; }
     public int? PumpOnMinutes { get; set; }
     public int? PumpOffMinutes { get; set; }
+    public int? LightMin { get; set; }
+    public int? LightMax { get; set; }
 }
 
 public class CropUpsertDto

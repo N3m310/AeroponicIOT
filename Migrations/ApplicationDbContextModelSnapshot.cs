@@ -248,6 +248,14 @@ namespace AeroponicIOT.Migrations
                         .HasColumnType("int")
                         .HasColumnName("humidity_min");
 
+                    b.Property<int?>("LightMax")
+                        .HasColumnType("int")
+                        .HasColumnName("light_max");
+
+                    b.Property<int?>("LightMin")
+                        .HasColumnType("int")
+                        .HasColumnName("light_min");
+
                     b.Property<decimal?>("PhMax")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")

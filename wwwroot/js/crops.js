@@ -136,6 +136,13 @@ function resetCropForm() {
 function addStageCard(stage = {}) {
     const stagesContainer = document.getElementById('stagesContainer');
     const stageIndex = stagesContainer.children.length + 1;
+    const isFirstStage = stageIndex === 1;
+
+    // Stage 1: dayStart luôn là 1
+    // Stage 2+: dayStart được tự động tính = dayEnd của stage trước + 1
+    const dayStartValue = isFirstStage ? 1 : (stage.dayStart ?? '');
+    const dayStartDisabled = true; // luôn disabled vì được tự động tính
+
     const card = document.createElement('div');
     card.className = 'stage-card';
     card.innerHTML = `
@@ -145,7 +152,7 @@ function addStageCard(stage = {}) {
         </div>
         <div class="stage-grid">
             <div class="form-group"><label>Tên giai đoạn</label><input type="text" data-field="stageName" value="${escapeHtml(stage.stageName || '')}" required></div>
-            <div class="form-group"><label>Từ ngày</label><input type="number" data-field="dayStart" min="1" value="${stage.dayStart ?? ''}" required></div>
+            <div class="form-group"><label>Từ ngày</label><input type="number" data-field="dayStart" min="1" value="${dayStartValue}" required disabled></div>
             <div class="form-group"><label>Đến ngày</label><input type="number" data-field="dayEnd" min="1" value="${stage.dayEnd ?? ''}" required></div>
             <div class="form-group"><label>pH thấp nhất</label><input type="number" step="0.1" data-field="phMin" value="${stage.phMin ?? ''}"></div>
             <div class="form-group"><label>pH cao nhất</label><input type="number" step="0.1" data-field="phMax" value="${stage.phMax ?? ''}"></div>
@@ -155,17 +162,75 @@ function addStageCard(stage = {}) {
             <div class="form-group"><label>Nhiệt độ nước cao nhất</label><input type="number" data-field="waterTempMax" value="${stage.waterTempMax ?? ''}"></div>
             <div class="form-group"><label>Độ ẩm thấp nhất</label><input type="number" data-field="humidityMin" value="${stage.humidityMin ?? ''}"></div>
             <div class="form-group"><label>Độ ẩm cao nhất</label><input type="number" data-field="humidityMax" value="${stage.humidityMax ?? ''}"></div>
+            <div class="form-group"><label>Ánh sáng tối thiểu (lux)</label><input type="number" data-field="lightMin" min="0" value="${stage.lightMin ?? ''}"></div>
+            <div class="form-group"><label>Ánh sáng tối đa (lux)</label><input type="number" data-field="lightMax" min="0" value="${stage.lightMax ?? ''}"></div>
             <div class="form-group"><label>Bơm bật (phút)</label><input type="number" data-field="pumpOnMinutes" min="1" value="${stage.pumpOnMinutes ?? ''}"></div>
             <div class="form-group"><label>Bơm tắt (phút)</label><input type="number" data-field="pumpOffMinutes" min="1" value="${stage.pumpOffMinutes ?? ''}"></div>
         </div>
     `;
 
+    // Auto-calculate next stage's dayStart when dayEnd changes
+    const dayEndInput = card.querySelector('[data-field="dayEnd"]');
+    dayEndInput.addEventListener('change', () => {
+        autoCalcNextDayStart(card);
+        fixAllDayStartValues(); // re-calculate all dayStart từ đầu
+    });
+    dayEndInput.addEventListener('input', () => {
+        autoCalcNextDayStart(card);
+        fixAllDayStartValues();
+    });
+
     card.querySelector('.delete').addEventListener('click', () => {
         card.remove();
         renumberStageCards();
+        fixAllDayStartValues(); // cập nhật lại dayStart sau khi xóa
     });
 
     stagesContainer.appendChild(card);
+
+    // Nếu có stage trước, tự động tính dayStart
+    if (!isFirstStage) {
+        fixAllDayStartValues();
+    }
+
+    // Nếu card này có dayEnd, tự động tính cho card sau
+    if (stage.dayEnd) {
+        autoCalcNextDayStart(card);
+    }
+}
+
+function autoCalcNextDayStart(currentCard) {
+    const dayEnd = parseInt(currentCard.querySelector('[data-field="dayEnd"]').value, 10);
+    if (!isNaN(dayEnd)) {
+        const nextCard = currentCard.nextElementSibling;
+        if (nextCard) {
+            const nextDayStart = nextCard.querySelector('[data-field="dayStart"]');
+            if (nextDayStart) {
+                nextDayStart.value = dayEnd + 1;
+                nextDayStart.min = dayEnd + 1;
+            }
+        }
+    }
+}
+
+function fixAllDayStartValues() {
+    const cards = document.querySelectorAll('.stage-card');
+    cards.forEach((card, index) => {
+        const dayStartInput = card.querySelector('[data-field="dayStart"]');
+        if (index === 0) {
+            // Stage 1 luôn bắt đầu từ ngày 1
+            dayStartInput.value = 1;
+            dayStartInput.min = 1;
+        } else {
+            // Stage N: dayStart = dayEnd của stage trước + 1
+            const prevCard = cards[index - 1];
+            const prevDayEnd = parseInt(prevCard.querySelector('[data-field="dayEnd"]').value, 10);
+            if (!isNaN(prevDayEnd)) {
+                dayStartInput.value = prevDayEnd + 1;
+                dayStartInput.min = prevDayEnd + 1;
+            }
+        }
+    });
 }
 
 function renumberStageCards() {
@@ -197,6 +262,8 @@ function collectStages() {
             waterTempMax: readNumber('waterTempMax'),
             humidityMin: readNumber('humidityMin'),
             humidityMax: readNumber('humidityMax'),
+            lightMin: readNumber('lightMin'),
+            lightMax: readNumber('lightMax'),
             pumpOnMinutes: readNumber('pumpOnMinutes'),
             pumpOffMinutes: readNumber('pumpOffMinutes')
         };
@@ -207,11 +274,44 @@ async function saveCrop(e) {
     e.preventDefault();
 
     const cropId = document.getElementById('cropId').value;
+    const totalDaysEst = document.getElementById('cropTotalDays').value ? Number(document.getElementById('cropTotalDays').value) : null;
+    const stages = collectStages();
+
+    // Client-side validation
+    if (stages.length === 0) {
+        showError('Cần ít nhất một giai đoạn');
+        return;
+    }
+
+    if (totalDaysEst) {
+        for (const stage of stages) {
+            if (stage.dayEnd && stage.dayEnd > totalDaysEst) {
+                showError(`Giai đoạn "${stage.stageName}" có ngày kết thúc (${stage.dayEnd}) vượt quá tổng số ngày dự kiến (${totalDaysEst})`);
+                return;
+            }
+        }
+        const lastStage = stages[stages.length - 1];
+        if (lastStage.dayEnd && lastStage.dayEnd > totalDaysEst) {
+            showError(`Tổng số ngày của các giai đoạn vượt quá tổng số ngày dự kiến (${totalDaysEst})`);
+            return;
+        }
+    }
+
+    // Check overlapping & order
+    let prevEnd = 0;
+    for (const stage of stages) {
+        if (stage.dayStart && stage.dayStart <= prevEnd) {
+            showError(`Giai đoạn "${stage.stageName}" có ngày bắt đầu chồng lấn với giai đoạn trước`);
+            return;
+        }
+        if (stage.dayEnd) prevEnd = stage.dayEnd;
+    }
+
     const payload = {
         name: document.getElementById('cropName').value.trim(),
         description: document.getElementById('cropDescription').value.trim() || null,
-        totalDaysEst: document.getElementById('cropTotalDays').value ? Number(document.getElementById('cropTotalDays').value) : null,
-        stages: collectStages()
+        totalDaysEst: totalDaysEst,
+        stages: stages
     };
 
     try {

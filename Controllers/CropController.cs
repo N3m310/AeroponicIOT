@@ -96,7 +96,9 @@ public class CropController : ControllerBase
                     s.HumidityMin,
                     s.HumidityMax,
                     s.PumpOnMinutes,
-                    s.PumpOffMinutes
+                    s.PumpOffMinutes,
+                    s.LightMin,
+                    s.LightMax
                 }).ToList(),
                 DeviceCount = crop.Devices?.Count ?? 0
             };
@@ -253,7 +255,9 @@ public class CropController : ControllerBase
             HumidityMin = stage.HumidityMin,
             HumidityMax = stage.HumidityMax,
             PumpOnMinutes = stage.PumpOnMinutes,
-            PumpOffMinutes = stage.PumpOffMinutes
+            PumpOffMinutes = stage.PumpOffMinutes,
+            LightMin = stage.LightMin,
+            LightMax = stage.LightMax
         };
     }
 
@@ -267,6 +271,11 @@ public class CropController : ControllerBase
         if (dto.Stages.Count == 0)
         {
             return "At least one crop stage is required";
+        }
+
+        if (dto.TotalDaysEst.HasValue && dto.TotalDaysEst.Value <= 0)
+        {
+            return "Total expected days must be greater than 0";
         }
 
         var orderedStages = dto.Stages.OrderBy(s => s.DayStart ?? int.MaxValue).ToList();
@@ -292,6 +301,11 @@ public class CropController : ControllerBase
             if (stage.DayStart.Value <= previousEnd)
             {
                 return "Stage day ranges must be ordered and non-overlapping";
+            }
+
+            if (dto.TotalDaysEst.HasValue && stage.DayEnd.Value > dto.TotalDaysEst.Value)
+            {
+                return $"Stage \"{stage.StageName}\" has day end ({stage.DayEnd.Value}) exceeding total expected days ({dto.TotalDaysEst.Value})";
             }
 
             previousEnd = stage.DayEnd.Value;
