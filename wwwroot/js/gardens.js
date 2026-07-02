@@ -125,12 +125,22 @@ function checkAuthentication() {
     document.getElementById('goCropsBtn').addEventListener('click', () => window.location.href = 'crops.html');
     document.getElementById('logoutBtn').addEventListener('click', logout);
 
+    // Show/hide form section based on role
+    const formSection = document.querySelector('.form-section');
+    if (formSection) {
+        if (!isAdmin) {
+            formSection.style.display = 'none';
+        } else {
+            formSection.style.display = 'block';
+        }
+    }
+
     // Show/hide admin notices
     const adminNotice = document.getElementById('adminNotice');
     if (adminNotice) {
         if (!isAdmin) {
             adminNotice.style.display = 'inline-block';
-            adminNotice.textContent = '🔒 Chế độ xem & Thêm mới (Chỉ quản trị viên mới được sửa/xóa)';
+            adminNotice.textContent = '🔒 Chế độ xem (Chỉ quản trị viên mới được sửa/xóa/tạo)';
         } else {
             adminNotice.style.display = 'none';
         }
