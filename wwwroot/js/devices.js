@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCrops();
     loadGardens();
     loadDevices();
-    loadPendingDevices();
+    if (document.getElementById('pendingDevicesGrid')) {
+        loadPendingDevices();
+    }
     setupEventListeners();
 });
 
@@ -60,8 +62,12 @@ function getAuthHeaders() {
 function setupEventListeners() {
     document.getElementById('addDeviceForm').addEventListener('submit', createDevice);
     document.getElementById('editDeviceForm').addEventListener('submit', updateDevice);
-    document.getElementById('claimDeviceForm').addEventListener('submit', claimDevice);
-    document.getElementById('refreshPendingBtn').addEventListener('click', loadPendingDevices);
+    
+    const claimForm = document.getElementById('claimDeviceForm');
+    if (claimForm) claimForm.addEventListener('submit', claimDevice);
+    
+    const refreshPending = document.getElementById('refreshPendingBtn');
+    if (refreshPending) refreshPending.addEventListener('click', loadPendingDevices);
 }
 
 // Load crops
@@ -114,6 +120,7 @@ function populateCropSelects() {
     const select3 = document.getElementById('claimCropSelect');
 
     [select1, select2, select3].forEach(select => {
+        if (!select) return;
         select.innerHTML = '<option value="">Chưa gán cây trồng</option>';
         crops.forEach(crop => {
             const option = document.createElement('option');
