@@ -45,6 +45,11 @@ public class ApplicationDbContext : DbContext
             .IsUnique()
             .HasFilter("[claim_code] IS NOT NULL");
 
+        modelBuilder.Entity<Device>()
+            .HasIndex(d => d.GardenId)
+            .IsUnique()
+            .HasFilter("[garden_id] IS NOT NULL");
+
         // Configure relationships
         modelBuilder.Entity<Device>()
             .HasOne(d => d.Crop)

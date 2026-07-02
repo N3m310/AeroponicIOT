@@ -317,6 +317,13 @@ public class DeviceController : ControllerBase
                 {
                     return ApiProblem(StatusCodes.Status400BadRequest, "Bad Request", "Garden not found");
                 }
+
+                var gardenHasDevice = await _context.Devices.AnyAsync(d => d.GardenId == request.GardenId.Value);
+                if (gardenHasDevice)
+                {
+                    return ApiProblem(StatusCodes.Status400BadRequest, "Bad Request", "Khu vườn này đã có thiết bị liên kết");
+                }
+
                 device.GardenId = request.GardenId;
             }
 
@@ -455,6 +462,13 @@ public class DeviceController : ControllerBase
                 {
                     return ApiProblem(StatusCodes.Status400BadRequest, "Bad Request", "Garden not found");
                 }
+
+                var gardenHasDevice = await _context.Devices.AnyAsync(d => d.GardenId == createDto.GardenId.Value);
+                if (gardenHasDevice)
+                {
+                    return ApiProblem(StatusCodes.Status400BadRequest, "Bad Request", "Khu vườn này đã có thiết bị liên kết");
+                }
+
                 inheritedCropId = garden.CurrentCropId;
             }
 
@@ -540,6 +554,13 @@ public class DeviceController : ControllerBase
                 {
                     return ApiProblem(StatusCodes.Status400BadRequest, "Bad Request", "Garden not found");
                 }
+
+                var gardenHasDevice = await _context.Devices.AnyAsync(d => d.GardenId == updateDto.GardenId.Value && d.Id != id);
+                if (gardenHasDevice)
+                {
+                    return ApiProblem(StatusCodes.Status400BadRequest, "Bad Request", "Khu vườn này đã có thiết bị liên kết");
+                }
+
                 device.GardenId = updateDto.GardenId;
                 inheritedCropId = garden.CurrentCropId;
             }

@@ -406,19 +406,24 @@ async function openAddDeviceModal() {
     if (!addDeviceModal) return;
     addDeviceModal.style.display = 'block';
 
-    // Populate gardens select
-    if (newDeviceGarden) {
-        newDeviceGarden.innerHTML = '<option value="">-- Chọn khu vườn --</option>';
-        gardens.forEach(garden => {
-            const opt = document.createElement('option');
-            opt.value = garden.id;
-            opt.textContent = garden.name;
-            if (selectedGardenId === String(garden.id)) {
-                opt.selected = true;
-            }
-            newDeviceGarden.appendChild(opt);
-        });
-    }
+     // Populate gardens select
+     if (newDeviceGarden) {
+         newDeviceGarden.innerHTML = '<option value="">-- Chọn khu vườn --</option>';
+         gardens.forEach(garden => {
+             const opt = document.createElement('option');
+             opt.value = garden.id;
+             if (garden.deviceCount > 0) {
+                 opt.textContent = `${garden.name} (Đã có thiết bị)`;
+                 opt.disabled = true;
+             } else {
+                 opt.textContent = garden.name;
+             }
+             if (selectedGardenId === String(garden.id) && garden.deviceCount === 0) {
+                 opt.selected = true;
+             }
+             newDeviceGarden.appendChild(opt);
+         });
+     }
 
     // Populate devices select from database
     if (deviceSelectDropdown) {
@@ -665,6 +670,13 @@ async function loadDashboardData() {
         const data = Auth.unwrapApiData(await response.json());
         updateDashboard(data);
         updateLastUpdate();
+
+        // Hide "+ Thêm thiết bị" button if selected garden already has a device
+        const activeGarden = gardens.find(g => String(g.id) === selectedGardenId);
+        const addDeviceBtn = document.getElementById('addDeviceBtn');
+        if (addDeviceBtn && currentUserIsAdmin) {
+            addDeviceBtn.hidden = !!(activeGarden && activeGarden.deviceCount > 0);
+        }
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showError('Không thể tải dữ liệu bảng điều khiển');
@@ -1004,7 +1016,11 @@ function buildDeviceEditForm(device) {
 
     const gardenOptions = [
         '<option value="">Chưa gán khu vườn</option>',
-        ...gardens.map(garden => `<option value="${garden.id}" ${device.gardenId === garden.id ? 'selected' : ''}>${garden.name}</option>`)
+        ...gardens.map(garden => {
+            const isSelected = device.gardenId === garden.id;
+            const isDisabled = garden.deviceCount > 0 && !isSelected;
+            return `<option value="${garden.id}" ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}>${garden.name}${isDisabled ? ' (Đã có thiết bị)' : ''}</option>`;
+        })
     ].join('');
 
     return `
