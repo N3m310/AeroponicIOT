@@ -688,9 +688,9 @@ function updateDashboard(data) {
     dashboardDevices = data.devices || [];
 
     // Update overview stats
-    totalDevices.textContent = data.totalDevices;
-    activeDevices.textContent = data.activeDevices;
-    activeAlerts.textContent = data.activeAlerts.length;
+    if (totalDevices) totalDevices.textContent = data.totalDevices;
+    if (activeDevices) activeDevices.textContent = data.activeDevices;
+    if (activeAlerts) activeAlerts.textContent = data.activeAlerts.length;
 
     // Update devices
     updateDevices(data.devices);
