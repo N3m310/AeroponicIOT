@@ -36,6 +36,11 @@ function checkAuthentication() {
     document.getElementById('goGardensBtn').addEventListener('click', () => window.location.href = 'gardens.html');
     document.getElementById('logoutBtn').addEventListener('click', logout);
 
+    // Hide crop edit form section for non-Admin
+    const formSection = document.querySelector('.form-section');
+    if (formSection) {
+        formSection.style.display = isAdmin ? 'block' : 'none';
+    }
 }
 
 function setupEventListeners() {
@@ -69,14 +74,25 @@ async function loadCrops() {
 function renderCrops() {
     const grid = document.getElementById('cropsGrid');
     if (!crops.length) {
-        grid.innerHTML = '<p class="no-devices">Chưa có cây trồng nào. Hãy tạo cây trồng đầu tiên với các giai đoạn chu kỳ.</p>';
+        grid.innerHTML = '<p class="no-devices">Chưa có cây trồng nào.</p>';
         return;
     }
+
+    const role = localStorage.getItem('role');
+    const isAdmin = typeof role === 'string' && role.trim().toLowerCase() === 'administrator';
 
     grid.innerHTML = '';
     crops.forEach(crop => {
         const card = document.createElement('div');
         card.className = 'crop-card';
+
+        const actionButtons = isAdmin ? `
+            <div class="card-actions">
+                <button class="btn-small edit" type="button" onclick="editCrop(${crop.id})">✏️ Sửa</button>
+                <button class="btn-small delete" type="button" onclick="deleteCrop(${crop.id}, '${escapeJs(crop.name)}')">🗑️ Xóa</button>
+            </div>
+        ` : '';
+
         card.innerHTML = `
             <h3>${crop.name}</h3>
             <div class="crop-meta">
@@ -84,10 +100,7 @@ function renderCrops() {
                 <div><strong>Số giai đoạn:</strong> ${crop.stageCount}</div>
                 <div><strong>Mô tả:</strong> ${crop.description || 'Không có mô tả'}</div>
             </div>
-            <div class="card-actions">
-                <button class="btn-small edit" type="button" onclick="editCrop(${crop.id})">✏️ Sửa</button>
-                <button class="btn-small delete" type="button" onclick="deleteCrop(${crop.id}, '${escapeJs(crop.name)}')">🗑️ Xóa</button>
-            </div>
+            ${actionButtons}
         `;
         grid.appendChild(card);
     });
