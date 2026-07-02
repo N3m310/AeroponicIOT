@@ -59,6 +59,16 @@
         </div>
     </div>
 
+    <!-- Crop Stages Detail Modal -->
+    <div id="cropStagesModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+        <div class="modal-content" style="background-color: #fefefe; margin: 10% auto; padding: 2rem; border: 1px solid #888; width: 90%; max-width: 650px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); box-sizing: border-box; position: relative;">
+            <span id="cropStagesModalClose" class="close" style="font-size: 28px; font-weight: bold; cursor: pointer; position: absolute; right: 20px; top: 15px; color: #aaa;">&times;</span>
+            <h2 id="cropStagesModalTitle" style="color: #047857; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">🌿 Chu kỳ & Giai đoạn cây trồng</h2>
+            <div id="cropStagesModalContent" style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Stages list will be loaded here -->
+            </div>
+        </div>
+    </div>
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/crops.js"></script>
