@@ -847,11 +847,7 @@ function createDeviceCard(device) {
     }
     const lastSeen = ls ? new Date(ls).toLocaleString('vi-VN') : 'Chưa bao giờ';
 
-    const actionsHtml = currentUserIsAdmin ? `
-        <div class="device-actions">
-            <button class="btn-secondary" onclick="openDeviceEditModal(${device.id})">Sửa nhanh</button>
-        </div>
-    ` : '';
+    const actionsHtml = '';
 
     card.innerHTML = `
         <div class="device-header">
