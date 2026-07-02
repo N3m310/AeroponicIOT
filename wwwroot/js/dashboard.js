@@ -858,7 +858,6 @@ function createDeviceCard(device) {
         <div class="device-mac">MAC: ${device.macAddress}</div>
         <div class="device-crop">Khu vườn: ${device.gardenName || 'Chưa gán'}</div>
         <div class="device-crop">Cây trồng: ${device.cropName || 'Chưa gán'}</div>
-        <div>Lần cuối online: ${lastSeen}</div>
         ${sensorHtml}
         ${actionsHtml}
     `;
