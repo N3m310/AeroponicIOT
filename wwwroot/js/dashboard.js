@@ -130,6 +130,10 @@ function checkAuthentication() {
     if (healthBtn) {
         healthBtn.hidden = !currentUserIsAdmin;
     }
+    const addGardenBtn = document.getElementById('addGardenBtn');
+    if (addGardenBtn) {
+        addGardenBtn.hidden = !currentUserIsAdmin;
+    }
 
     // Create user info element
     const headerControls = document.querySelector('.header-controls');
