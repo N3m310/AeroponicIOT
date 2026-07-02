@@ -76,6 +76,18 @@ document.addEventListener('DOMContentLoaded', function () {
     if (addDeviceBtn) addDeviceBtn.addEventListener('click', openAddDeviceModal);
     if (addDeviceModalClose) addDeviceModalClose.addEventListener('click', closeAddDeviceModal);
     if (addDeviceForm) addDeviceForm.addEventListener('submit', handleAddDevice);
+
+    const viewOwnersBtn = document.getElementById('viewOwnersBtn');
+    const ownersModalClose = document.getElementById('ownersModalClose');
+    if (viewOwnersBtn) viewOwnersBtn.addEventListener('click', showGardenOwners);
+    if (ownersModalClose) ownersModalClose.addEventListener('click', closeOwnersModal);
+
+    window.addEventListener('click', function (event) {
+        const ownersModal = document.getElementById('ownersModal');
+        if (event.target === ownersModal) {
+            closeOwnersModal();
+        }
+    });
 });
 
 // Bind nav buttons defensively (works even if inline onclick handlers are blocked)
@@ -676,6 +688,16 @@ async function loadDashboardData() {
         const addDeviceBtn = document.getElementById('addDeviceBtn');
         if (addDeviceBtn && currentUserIsAdmin) {
             addDeviceBtn.hidden = !!(activeGarden && activeGarden.deviceCount > 0);
+        }
+
+        // Show/hide viewOwnersBtn based on active garden selection
+        const viewOwnersBtn = document.getElementById('viewOwnersBtn');
+        if (viewOwnersBtn) {
+            if (activeGarden) {
+                viewOwnersBtn.style.display = 'inline-block';
+            } else {
+                viewOwnersBtn.style.display = 'none';
+            }
         }
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -1334,4 +1356,57 @@ function goToGardens() {
 
 function isAdministratorRole(role) {
     return typeof role === 'string' && role.trim().toLowerCase() === 'administrator';
+}
+
+function showGardenOwners() {
+    const activeGarden = gardens.find(g => String(g.id) === selectedGardenId);
+    if (!activeGarden) {
+        showError('Không tìm thấy thông tin khu vườn');
+        return;
+    }
+
+    const titleEl = document.getElementById('ownersModalTitle');
+    if (titleEl) {
+        titleEl.innerHTML = `👥 Chủ sở hữu vườn <br><span style="font-size: 1.1rem; color: #10b981; margin-top: 0.25rem;">${escapeHtml(activeGarden.name)}</span>`;
+    }
+
+    const contentEl = document.getElementById('ownersModalContent');
+    if (contentEl) {
+        if (activeGarden.ownerNames && activeGarden.ownerNames.length > 0) {
+            contentEl.innerHTML = activeGarden.ownerNames.map(name => `
+                <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-left: 4px solid #10b981;">
+                    <span style="font-size: 1.2rem;">👤</span>
+                    <strong style="color: var(--text-primary);">${escapeHtml(name)}</strong>
+                </div>
+            `).join('');
+        } else {
+            contentEl.innerHTML = `
+                <div style="text-align: center; color: var(--text-secondary); padding: 1rem;">
+                    Chưa gán người sở hữu nào cho khu vườn này.
+                </div>
+            `;
+        }
+    }
+
+    const modal = document.getElementById('ownersModal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+function closeOwnersModal() {
+    const modal = document.getElementById('ownersModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }

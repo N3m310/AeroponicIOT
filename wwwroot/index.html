@@ -28,6 +28,8 @@
         <button id="addGardenBtn" class="btn-primary" type="button">+ Thêm khu vườn mới</button>
         <button id="addDeviceBtn" class="btn-primary" type="button"
             style="background: #2563eb; border-color: #1d4ed8; margin-left: 0.5rem;">+ Thêm thiết bị</button>
+        <button id="viewOwnersBtn" class="btn-primary" type="button"
+            style="background: #10b981; border-color: #059669; margin-left: 0.5rem; display: none;">👤 Chủ sở hữu</button>
     </section>
 
     <main>
@@ -157,6 +159,17 @@
                 </div>
                 <button type="submit" class="btn-primary">Xác nhận</button>
             </form>
+        </div>
+    </div>
+
+    <!-- View Owners Modal -->
+    <div id="ownersModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center; border-radius: 12px; padding: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.12);">
+            <span id="ownersModalClose" class="close" style="font-size: 28px; font-weight: bold; cursor: pointer; float: right; margin-top: -10px;">&times;</span>
+            <h2 id="ownersModalTitle" style="color: var(--text-primary); margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">👥 Người sở hữu</h2>
+            <div id="ownersModalContent" style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: left; font-size: 1rem; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+                <!-- Owner names will be dynamically loaded here -->
+            </div>
         </div>
     </div>
     <script src="js/config.js"></script>
