@@ -136,24 +136,6 @@ function checkAuthentication() {
     const userInfo = document.createElement('div');
     userInfo.className = 'user-info';
     userInfo.innerHTML = `
-        <div class="notification-bell">
-            <button id="notificationBell" class="bell-button">
-                🔔
-                <span id="notificationBadge" class="notification-badge" style="display:none;">0</span>
-            </button>
-            <button id="soundToggle" class="sound-toggle" title="Bật/Tắt âm thanh thông báo">
-                ${soundEnabled ? '🔊' : '🔇'}
-            </button>
-            <div id="notificationDropdown" class="notification-dropdown" style="display:none;">
-                <div class="notification-header">
-                    <h3>Thông báo</h3>
-                    <button id="clearNotificationsBtn" class="clear-btn">Xóa tất cả</button>
-                </div>
-                <div id="notificationsList" class="notifications-list">
-                    <p class="no-notifications">Không có thông báo mới</p>
-                </div>
-            </div>
-        </div>
         <span>${username} <small>(${role})</small></span>
         <button id="profileBtn" class="btn-secondary">👤 Tài khoản</button>
         <button id="logoutBtn" class="btn-secondary">Đăng xuất</button>
@@ -162,16 +144,7 @@ function checkAuthentication() {
 
     ensureProfileModal();
 
-    // Load notifications
-    loadNotifications();
-    setInterval(loadNotifications, 10000); // Check every 10 seconds
-
-    // Notification bell click handler
-    document.getElementById('notificationBell').addEventListener('click', toggleNotificationDropdown);
-    document.getElementById('clearNotificationsBtn').addEventListener('click', clearAllNotifications);
-    document.getElementById('soundToggle').addEventListener('click', toggleNotificationSound);
     document.getElementById('profileBtn').addEventListener('click', openProfileModal);
-
     document.getElementById('logoutBtn').addEventListener('click', logout);
 }
 
