@@ -44,7 +44,18 @@ public class DashboardController : ControllerBase
             }
             else if (currentUser.UserId.HasValue)
             {
-                devicesQuery = _context.Devices.AsNoTracking().Where(d => d.UserId == currentUser.UserId.Value);
+                var ownedGardenIds = await _context.Gardens
+                    .Where(g => g.Owners.Any(o => o.Id == currentUser.UserId.Value))
+                    .Select(g => g.Id)
+                    .ToListAsync();
+
+                if (gardenId.HasValue && !ownedGardenIds.Contains(gardenId.Value))
+                {
+                    return Forbid();
+                }
+
+                devicesQuery = _context.Devices.AsNoTracking()
+                    .Where(d => (d.GardenId.HasValue && ownedGardenIds.Contains(d.GardenId.Value)) || d.UserId == currentUser.UserId.Value);
             }
             else
             {
@@ -161,7 +172,13 @@ public class DashboardController : ControllerBase
 
             if (!currentUser.IsAdministrator && currentUser.UserId.HasValue)
             {
-                activeAlertsQuery = activeAlertsQuery.Where(a => a.Device != null && a.Device.UserId == currentUser.UserId.Value);
+                var ownedGardenIds = await _context.Gardens
+                    .Where(g => g.Owners.Any(o => o.Id == currentUser.UserId.Value))
+                    .Select(g => g.Id)
+                    .ToListAsync();
+
+                activeAlertsQuery = activeAlertsQuery.Where(a => a.Device != null && 
+                    ((a.Device.GardenId.HasValue && ownedGardenIds.Contains(a.Device.GardenId.Value)) || a.Device.UserId == currentUser.UserId.Value));
             }
 
             if (gardenId.HasValue)

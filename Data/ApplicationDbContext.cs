@@ -75,6 +75,14 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(d => d.UserId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        modelBuilder.Entity<Garden>()
+            .HasMany(g => g.Owners)
+            .WithMany(u => u.Gardens)
+            .UsingEntity<Dictionary<string, object>>(
+                "user_gardens",
+                j => j.HasOne<User>().WithMany().HasForeignKey("user_id").OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<Garden>().WithMany().HasForeignKey("garden_id").OnDelete(DeleteBehavior.Cascade));
+
         modelBuilder.Entity<CropStage>()
             .HasOne(cs => cs.Crop)
             .WithMany(c => c.CropStages)

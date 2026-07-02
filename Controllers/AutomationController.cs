@@ -43,7 +43,13 @@ public class AutomationController : ControllerBase
                 if (!currentUser.UserId.HasValue)
                     return ApiProblem(StatusCodes.Status401Unauthorized, "Unauthorized", "User not authenticated");
 
-                query = query.Where(r => r.Device != null && r.Device.UserId == currentUser.UserId.Value);
+                var ownedGardenIds = await _context.Gardens
+                    .Where(g => g.Owners.Any(o => o.Id == currentUser.UserId.Value))
+                    .Select(g => g.Id)
+                    .ToListAsync();
+
+                query = query.Where(r => r.Device != null && 
+                    ((r.Device.GardenId.HasValue && ownedGardenIds.Contains(r.Device.GardenId.Value)) || r.Device.UserId == currentUser.UserId.Value));
             }
 
             var rules = await query.OrderByDescending(r => r.IsActive)
@@ -77,7 +83,7 @@ public class AutomationController : ControllerBase
 
             if (!currentUser.IsAdministrator)
             {
-                if (!currentUser.UserId.HasValue || rule.Device == null || rule.Device.UserId != currentUser.UserId.Value)
+                if (!currentUser.UserId.HasValue || rule.Device == null || !await UserHasAccessToDeviceAsync(currentUser.UserId.Value, rule.Device))
                 {
                     return Forbid();
                 }
@@ -112,7 +118,7 @@ public class AutomationController : ControllerBase
 
             if (!currentUser.IsAdministrator)
             {
-                if (!currentUser.UserId.HasValue || device.UserId != currentUser.UserId.Value)
+                if (!currentUser.UserId.HasValue || !await UserHasAccessToDeviceAsync(currentUser.UserId.Value, device))
                     return Forbid();
             }
 
@@ -168,7 +174,7 @@ public class AutomationController : ControllerBase
 
             if (!currentUser.IsAdministrator)
             {
-                if (!currentUser.UserId.HasValue || device == null || device.UserId != currentUser.UserId.Value)
+                if (!currentUser.UserId.HasValue || device == null || !await UserHasAccessToDeviceAsync(currentUser.UserId.Value, device))
                     return Forbid();
             }
 
@@ -214,7 +220,7 @@ public class AutomationController : ControllerBase
 
             if (!currentUser.IsAdministrator)
             {
-                if (!currentUser.UserId.HasValue || device == null || device.UserId != currentUser.UserId.Value)
+                if (!currentUser.UserId.HasValue || device == null || !await UserHasAccessToDeviceAsync(currentUser.UserId.Value, device))
                     return Forbid();
             }
 
@@ -249,7 +255,7 @@ public class AutomationController : ControllerBase
 
             if (!currentUser.IsAdministrator)
             {
-                if (!currentUser.UserId.HasValue || device == null || device.UserId != currentUser.UserId.Value)
+                if (!currentUser.UserId.HasValue || device == null || !await UserHasAccessToDeviceAsync(currentUser.UserId.Value, device))
                     return Forbid();
             }
 
@@ -282,7 +288,7 @@ public class AutomationController : ControllerBase
 
             if (!currentUser.IsAdministrator)
             {
-                if (!currentUser.UserId.HasValue || device.UserId != currentUser.UserId.Value)
+                if (!currentUser.UserId.HasValue || !await UserHasAccessToDeviceAsync(currentUser.UserId.Value, device))
                     return Forbid();
             }
 
@@ -298,6 +304,18 @@ public class AutomationController : ControllerBase
             _logger.LogError(ex, "Error fetching rules for device {DeviceId}", deviceId);
             return ApiProblem(StatusCodes.Status500InternalServerError, "Internal Server Error", "Error fetching rules");
         }
+    }
+
+    private async Task<bool> UserHasAccessToDeviceAsync(int userId, Device? device)
+    {
+        if (device == null) return false;
+        if (device.UserId == userId) return true;
+        if (device.GardenId.HasValue)
+        {
+            return await _context.Gardens
+                .AnyAsync(g => g.Id == device.GardenId.Value && g.Owners.Any(o => o.Id == userId));
+        }
+        return false;
     }
 
     private ObjectResult ApiProblem(int statusCode, string title, string detail)

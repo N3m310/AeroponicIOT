@@ -384,10 +384,20 @@ public class DeviceController : ControllerBase
             }
 
             // Check authorization
-            if (userRole != "Administrator" && device.UserId != userId)
+            if (userRole != "Administrator")
             {
-                _logger.LogWarning("User {UserId} attempted to access device {DeviceId} without permission", userId, id);
-                return Forbid();
+                var hasAccess = device.UserId == userId;
+                if (!hasAccess && device.GardenId.HasValue)
+                {
+                    hasAccess = await _context.Gardens
+                        .AnyAsync(g => g.Id == device.GardenId.Value && g.Owners.Any(o => o.Id == userId));
+                }
+
+                if (!hasAccess)
+                {
+                    _logger.LogWarning("User {UserId} attempted to access device {DeviceId} without permission", userId, id);
+                    return Forbid();
+                }
             }
 
             var deviceDto = new DeviceDto

@@ -37,4 +37,5 @@ public class User
 
     // Navigation properties
     public ICollection<Device> Devices { get; set; } = new List<Device>();
+    public ICollection<Garden> Gardens { get; set; } = new List<Garden>();
 }
