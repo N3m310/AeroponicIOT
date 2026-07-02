@@ -371,7 +371,7 @@ function getAuthHeaders() {
 }
 
 // Event listeners
-refreshBtn.addEventListener('click', loadDashboardData);
+if (refreshBtn) refreshBtn.addEventListener('click', loadDashboardData);
 closeModal.addEventListener('click', () => deviceModal.style.display = 'none');
 gardenModalClose?.addEventListener('click', closeGardenModal);
 addGardenBtn?.addEventListener('click', openGardenModal);
@@ -1253,7 +1253,9 @@ async function handleQuickDeviceUpdate(e) {
 
 // Utility functions
 function updateLastUpdate() {
-    lastUpdate.textContent = `Cập nhật lần cuối: ${new Date().toLocaleString('vi-VN')}`;
+    if (lastUpdate) {
+        lastUpdate.textContent = `Cập nhật lần cuối: ${new Date().toLocaleString('vi-VN')}`;
+    }
 }
 
 function showSuccess(message) {
