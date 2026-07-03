@@ -64,7 +64,6 @@ Nông nghiệp khí canh (aeroponics) là phương pháp trồng cây không c�
 | 3 | Phản ứng chậm khi môi trường vượt ngưỡng → cây bị sốc, giảm năng suất |
 | 4 | Khó quản lý nhiều vườn/nhiều thiết bị cùng lúc |
 | 5 | Thiếu công cụ phân tích dữ liệu lịch sử để tối ưu quy trình trồng |
-| 6 | Thiết bị IoT cần cơ chế tự đăng ký, cấu hình đơn giản, bảo mật |
 
 > 📝 **Mẹo trình bày:** Dùng biểu đồ/hình ảnh minh họa mô hình khí canh và các thông số môi trường cần kiểm soát.
 
@@ -81,7 +80,6 @@ Nông nghiệp khí canh (aeroponics) là phương pháp trồng cây không c�
 | 3 | **Quản lý cây trồng phức tạp:** Mỗi cây có nhiều giai đoạn (nảy mầm, sinh trưởng, ra hoa, thu hoạch) với thông số khác nhau |
 | 4 | **Tự động hóa hạn chế:** Thiếu cơ chế bật/tắt thiết bị theo lịch hoặc theo điều kiện môi trường |
 | 5 | **Phân tích dữ liệu kém:** Không có công cụ xem lịch sử, biểu đồ xu hướng để cải thiện quy trình |
-| 6 | **Quản lý thiết bị IoT:** Thiết bị mới cần cấu hình thủ công, không có cơ chế tự đăng ký an toàn |
 
 ### GIẢI PHÁP
 
@@ -92,7 +90,6 @@ Nông nghiệp khí canh (aeroponics) là phương pháp trồng cây không c�
 | 3 | **Quản lý cây trồng đa giai đoạn:** Cấu hình thông số riêng cho từng giai đoạn (nảy mầm, sinh trưởng...) của từng loại cây |
 | 4 | **Automation Engine:** 3 loại rule — theo lịch (Schedule), theo ngưỡng (Threshold), theo thời gian (Time-based) → tự động bật/tắt bơm, quạt, đèn, máy sưởi |
 | 5 | **Phân tích dữ liệu:** Biểu đồ Chart.js real-time + lịch sử, KPI dashboard |
-| 6 | **Tự đăng ký thiết bị (Self-Provisioning):** ESP32 tự gọi API với Shared Key → nhận Claim Code → user xác nhận qua Dashboard → thiết bị hoạt động |
 
 ---
 
@@ -100,40 +97,38 @@ Nông nghiệp khí canh (aeroponics) là phương pháp trồng cây không c�
 
 ```mermaid
 graph TB
-    subgraph IoT["IoT Devices"]
-        ESP1["ESP32 Device 1"]
-        ESP2["ESP32 Device 2"]
-        ZIG["Zigbee Devices"]
-    end
+    %% ── External Entities ──
+    IOT["🌱 IoT Device\n(ESP32 / Zigbee)\n━━━━━━━━━━━\nSensor + Actuator"]
+    FARMER["🧑‍🌾 Farmer\n(Người nông dân)\n━━━━━━━━━━━\nDashboard User"]
+    ADMIN["👨‍💼 Administrator\n(Quản trị viên)\n━━━━━━━━━━━\nSystem Manager"]
 
-    subgraph Core["AeroponicIOT System Core"]
-        MQTT["MQTT Broker\n(MQTTnet)\nPort: 1883"]
-        API["ASP.NET Core 10 Web API\n━━━━━━━━━━━━━━━\n• JWT Auth + RBAC\n• Rate Limiting\n• 13 Controllers\n• Automation Engine\n• Notification Service"]
-    end
+    %% ── The System ──
+    SYS["🖥️ AEROPONIC IOT\n━━━━━━━━━━━━━━━━━━━━\nSmart Farm Monitoring\n& Control System\n━━━━━━━━━━━━━━━━━━━━\n• Real-time sensor monitoring\n• Crop growth stage management\n• Alert & notification engine\n• MQTT broker + REST API\n• JWT auth + RBAC"]
 
-    subgraph Data["Data Layer"]
-        SQL[("SQL Server 2022")]
-        REDIS[("Redis Cache\n(optional)")]
-    end
+    %% ── External Output Destinations ──
+    SMTP["📧 SMTP Email Server\n(MailKit)"]
+    OTEL["📊 OpenTelemetry\n→ Grafana / Jaeger"]
 
-    subgraph Clients["Clients"]
-        WEB["Web Dashboard\n(HTML/CSS/JS)\nChart.js\nPort: 5062"]
-    end
+    %% ═══════════════════════════════════════
+    %% DATA FLOWS
+    %% ═══════════════════════════════════════
 
-    subgraph External["External Systems"]
-        EMAIL["Email Notification\n(MailKit/SMTP)"]
-        OTEL["OpenTelemetry\n→ Grafana/Jaeger"]
-    end
+    %% ── IoT Device → System (unidirectional input only) ──
+    IOT -->|"📥 INPUT\nSensor readings\n(pH, TDS, Temp,\nHumidity, Light)\nvia MQTT / HTTP"| SYS
 
-    ESP1 -->|MQTT / HTTP| MQTT
-    ESP2 -->|MQTT / HTTP| MQTT
-    ZIG -->|MQTT| MQTT
-    MQTT --> API
-    API --> SQL
-    API --> REDIS
-    WEB -->|REST API| API
-    API --> EMAIL
-    API --> OTEL
+    %% ── Farmer ↔ System (bidirectional) ──
+    FARMER -->|"📥 INPUT\n• Crop & stage config\n• Garden management"| SYS
+    SYS -->|"📤 OUTPUT\n• Dashboard sensor data\n• Real-time charts\n• Alert notifications\n• Crop thresholds"| FARMER
+
+    %% ── Admin ↔ System (bidirectional) ──
+    ADMIN -->|"📥 INPUT\n• Manage users & roles\n• System configuration"| SYS
+    SYS -->|"📤 OUTPUT\n• User & device lists\n• System health status\n• Audit logs"| ADMIN
+
+    %% ── System → SMTP (output only) ──
+    SYS -->|"📤 OUTPUT\nAlert emails\n(threshold violations,\ndevice offline, etc.)"| SMTP
+
+    %% ── System → OTel (output only) ──
+    SYS -->|"📤 OUTPUT\nTraces & Metrics\n(request latency,\nerror rates, P95)"| OTEL
 ```
 
 ---
@@ -152,25 +147,20 @@ graph TB
     subgraph Application["⚙️ APPLICATION TIER — ASP.NET Core 10"]
         direction TB
 
-        subgraph Controllers["13 REST Controllers"]
+        subgraph Controllers["11 REST Controllers"]
             AUTH["Auth"]
             DEV["Device"]
             CROP["Crop"]
             SENSOR["Sensor"]
-            ACT["Actuator"]
             GARDEN["Garden"]
             DASH["Dashboard"]
-            AUTO["Automation"]
             MQTTAPI["MQTT"]
             NOTIF["Notification"]
             USERS["Users"]
-            AIAPI["AI Suggestion"]
             DEBUG["Debug"]
         end
 
-        subgraph Services["7 Service Modules"]
-            AI["AI"]
-            AUTOSVC["Automation"]
+        subgraph Services["5 Service Modules"]
             MQTTSVC["MQTT"]
             NOTIFSVC["Notification"]
             SENSORSVC["Sensor"]
@@ -185,9 +175,7 @@ graph TB
             GLOBAL["GlobalException"]
         end
 
-        subgraph BGServices["3 Background Services"]
-            AIBG["AI Analysis"]
-            AUTOBG["Automation"]
+        subgraph BGServices["1 Background Service"]
             LOGBG["Log Retention"]
         end
 
@@ -216,8 +204,7 @@ graph TB
 ### Data Flow (Luồng dữ liệu)
 
 1. **Sensor → Cloud:** ESP32 đọc cảm biến → publish MQTT topic `devices/{MAC}/sensor` → MQTT Broker nhận → SensorIngestionService lưu vào DB → kiểm tra ngưỡng → tạo Alert nếu vượt
-2. **Cloud → Actuator:** Automation Engine đánh giá rules → gửi lệnh qua MQTT topic `devices/{MAC}/control` → ESP32 nhận → bật/tắt thiết bị
-3. **Dashboard → API:** User thao tác trên Web → gọi REST API (JWT) → Business Logic xử lý → trả JSON
+2. **Dashboard → API:** User thao tác trên Web → gọi REST API (JWT) → Business Logic xử lý → trả JSON
 
 ---
 
@@ -273,8 +260,6 @@ erDiagram
     User ||--o{ Notification : "nhận"
 
     Device ||--o{ SensorLog : "tạo ra"
-    Device ||--o{ ActuatorLog : "tạo ra"
-    Device ||--o{ AutomationRule : "có"
     Device ||--o{ Alert : "kích hoạt"
     Device }o--o| Crop : "đang trồng"
     Device }o--o| Garden : "thuộc"
@@ -303,9 +288,6 @@ erDiagram
         string firmware_version
         string status "Pending|Active|Online|Offline|Inactive"
         string protocol_type "wifi|zigbee"
-        string claim_code
-        datetime claim_code_expires_at
-        datetime provisioned_at
         datetime crop_assigned_at
         datetime last_seen
     }
@@ -332,24 +314,6 @@ erDiagram
         string actuator_type "Pump|Fan|Light|Heater"
         string action "ON|OFF|PULSE"
         int duration_minutes
-    }
-
-    AutomationRule {
-        int id PK
-        int device_id FK
-        string rule_name
-        string rule_type "Schedule|Threshold|Time-based"
-        string actuator_type
-        string action
-        string condition_parameter "pH|TDS|Temperature|Humidity"
-        float condition_value
-        string condition_operator "greater_than|less_than|equal|..."
-        time schedule_time
-        string schedule_days
-        int duration_minutes
-        bool is_active
-        int priority
-        datetime last_executed
     }
 
     Alert {
@@ -412,7 +376,7 @@ erDiagram
     }
 ```
 
-> 📝 **Giải thích:** User sở hữu nhiều Device. Mỗi Device gửi SensorLog và ActuatorLog. Automation Rule gắn với Device để tự động điều khiển. Crop có nhiều CropStage (giai đoạn sinh trưởng). Garden chứa các Device và có 1 Crop hiện tại.
+> 📝 **Giải thích:** User sở hữu nhiều Device. Mỗi Device gửi SensorLog. Crop có nhiều CropStage (giai đoạn sinh trưởng). Garden chứa các Device và có 1 Crop hiện tại.
 
 ---
 
@@ -423,8 +387,8 @@ erDiagram
 | Actor | Mô tả |
 |-------|-------|
 | 🧑‍🌾 **Farmer (Nông dân)** | Người dùng chính — quản lý vườn, thiết bị, cây trồng, xem dashboard |
-| 👨‍💼 **Administrator (Quản trị viên)** | Quản lý toàn hệ thống — quản lý users, thiết bị pending, cấu hình hệ thống |
-| 🤖 **IoT Device (ESP32)** | Thiết bị phần cứng — gửi dữ liệu cảm biến, nhận lệnh điều khiển |
+| 👨‍💼 **Administrator (Quản trị viên)** | Quản lý toàn hệ thống — quản lý users, cấu hình hệ thống |
+| 🤖 **IoT Device (ESP32)** | Thiết bị phần cứng — gửi dữ liệu cảm biến qua MQTT |
 
 ---
 
@@ -434,14 +398,11 @@ erDiagram
 |---|-----------|-------|
 | 1 | **Đăng ký / Đăng nhập** | Tạo tài khoản, đăng nhập bằng JWT |
 | 2 | **Dashboard tổng quan** | Xem tất cả thiết bị, chỉ số mới nhất (pH, TDS, nhiệt độ, độ ẩm, ánh sáng) |
-| 3 | **Quản lý thiết bị** | Thêm thiết bị mới (nhập Claim Code), xem danh sách, xem chi tiết, xóa |
+| 3 | **Quản lý thiết bị** | Xem danh sách thiết bị, xem chi tiết, gán crop/vườn |
 | 4 | **Quản lý vườn (Garden)** | Tạo vườn, gán thiết bị vào vườn, chọn cây trồng hiện tại cho vườn |
 | 5 | **Quản lý cây trồng (Crop)** | Tạo loại cây, cấu hình nhiều giai đoạn sinh trưởng với ngưỡng pH, PPM, nhiệt độ, độ ẩm, ánh sáng riêng |
-| 6 | **Điều khiển thiết bị thủ công** | Bật/tắt bơm, quạt, đèn, máy sưởi từ Dashboard |
-| 7 | **Tự động hóa (Automation)** | Tạo rule: theo lịch (08:00 mỗi ngày), theo ngưỡng (pH < 5.5 → bật bơm), theo thời gian (bật 5 phút, tắt 15 phút) |
-| 8 | **Xem biểu đồ & lịch sử** | Biểu đồ Chart.js — chọn thiết bị, khoảng thời gian, loại dữ liệu |
-| 9 | **Nhận thông báo** | In-app notification + Email khi chỉ số vượt ngưỡng |
-| 10 | **Xem lịch sử điều khiển** | Log các lần bật/tắt thiết bị |
+| 6 | **Xem biểu đồ & lịch sử** | Biểu đồ Chart.js — chọn thiết bị, khoảng thời gian, loại dữ liệu |
+| 7 | **Nhận thông báo** | In-app notification + Email khi chỉ số vượt ngưỡng |
 
 ---
 
@@ -450,10 +411,8 @@ erDiagram
 | # | Chức năng | Mô tả |
 |---|-----------|-------|
 | 1 | **Quản lý người dùng** | Xem danh sách, xóa, đổi role (Farmer ↔ Admin) |
-| 2 | **Duyệt thiết bị mới** | Xem danh sách thiết bị Pending, phê duyệt/từ chối |
-| 3 | **Cấu hình hệ thống** | JWT secret, MQTT config, Email config, CORS origins |
-| 4 | **AI Analysis** | Phân tích dữ liệu cảm biến bằng AI, đưa ra gợi ý cải thiện |
-| 5 | **Health Monitoring** | Kiểm tra trạng thái hệ thống (DB, MQTT, Memory) |
+| 2 | **Cấu hình hệ thống** | JWT secret, MQTT config, Email config, CORS origins |
+| 3 | **Health Monitoring** | Kiểm tra trạng thái hệ thống (DB, MQTT, Memory) |
 
 ---
 
@@ -461,34 +420,14 @@ erDiagram
 
 | # | Chức năng | Mô tả |
 |---|-----------|-------|
-| 1 | **Tự đăng ký (Self-Provisioning)** | Gọi API `POST /api/device/self-register` với Shared Key → nhận Claim Code |
-| 2 | **Gửi dữ liệu cảm biến** | Publish MQTT mỗi 5 giây: pH, TDS, nhiệt độ nước, độ ẩm, ánh sáng |
-| 3 | **Nhận lệnh điều khiển** | Subscribe MQTT topic `devices/{MAC}/control` → bật/tắt actuator |
-| 4 | **Hỗ trợ WiFi + Zigbee** | Giao tiếp qua WiFi (HTTP/MQTT) hoặc Zigbee2MQTT Bridge |
+| 1 | **Gửi dữ liệu cảm biến** | Publish MQTT mỗi 5 giây: pH, TDS, nhiệt độ nước, độ ẩm, ánh sáng |
+| 2 | **Hỗ trợ WiFi + Zigbee** | Giao tiếp qua WiFi (HTTP/MQTT) hoặc Zigbee2MQTT Bridge |
 
 ---
 
 ## SLIDE 23-29 — LUỒNG CHÍNH (MAIN FLOWS)
 
-### 1. LUỒNG TỰ ĐĂNG KÝ THIẾT BỊ (DEVICE SELF-PROVISIONING)
-
-```mermaid
-flowchart TD
-    A["🚀 ESP32 Boot"] --> B["📶 Kết nối WiFi"]
-    B -->|Fail| B
-    B -->|Success| C["POST /api/device/self-register\nX-Device-Key: {shared_key}\n{mac, chipId, firmwareVersion, deviceName}"]
-    C --> D{"Server kiểm tra\nShared Key?"}
-    D -->|Invalid| E["❌ 401 Unauthorized"]
-    D -->|Valid| F["📝 Tạo Device (status=Pending)\n+ Claim Code (16 ký tự)\nHết hạn: 10 phút"]
-    F --> G["📤 Trả Claim Code về ESP32"]
-    G --> H["🖥️ ESP32 hiển thị\nClaim Code (Serial Monitor)"]
-    H --> I["👤 User mở Dashboard\nNhập Claim Code"]
-    I --> J["PUT /api/device/claim"]
-    J --> K["✅ Device status → Active\nESP32 kết nối MQTT Broker"]
-    K --> L["📡 Bắt đầu publish\nsensor data mỗi 5 giây"]
-```
-
-### 2. LUỒNG GIÁM SÁT & CẢNH BÁO (MONITORING & ALERT)
+### 1. LUỒNG GIÁM SÁT & CẢNH BÁO (MONITORING & ALERT)
 
 ```mermaid
 flowchart TD
@@ -503,27 +442,7 @@ flowchart TD
     C --> J["📊 Dashboard\ncập nhật real-time"]
 ```
 
-### 3. LUỒNG TỰ ĐỘNG HÓA (AUTOMATION)
-
-```mermaid
-flowchart TD
-    A["⏱️ AutomationBackgroundService\n(chạy nền mỗi 30 giây)"] --> B["📋 Lấy tất cả\nAutomationRules\n(is_active = true)"]
-    B --> C{"🔀 Loại Rule?"}
-
-    C -->|"Schedule"| D["🕐 Kiểm tra:\ncurrent_time == schedule_time\nAND current_day IN schedule_days?"]
-    D -->|Đúng| G
-
-    C -->|"Threshold"| E["📊 Lấy sensor data\nmới nhất của device\nSo sánh: value [op] condition_value?\nVD: pH < 5.5?"]
-    E -->|Đúng| G
-
-    C -->|"Time-based"| F["⏲️ Bật actuator\ntrong duration_minutes\nVD: Bơm bật 5ph, tắt 15ph → lặp"]
-
-    G["⚡ Thực thi Action"] --> H["📤 Publish MQTT:\ndevices/{MAC}/control\n{actuator, action}"]
-    H --> I["🔌 ESP32 nhận\n→ bật/tắt GPIO"]
-    H --> J["📝 Lưu ActuatorLog"]
-```
-
-### 4. LUỒNG QUẢN LÝ CÂY TRỒNG (CROP MANAGEMENT)
+### 2. LUỒNG QUẢN LÝ CÂY TRỒNG (CROP MANAGEMENT)
 
 ```mermaid
 flowchart TD
@@ -540,21 +459,7 @@ flowchart TD
     I --> J["✅ Hệ thống tự động\náp dụng thresholds\ntheo ngày hiện tại"]
 ```
 
-### 5. LUỒNG ĐIỀU KHIỂN THIẾT BỊ THỦ CÔNG
-
-```mermaid
-flowchart TD
-    A["👤 User mở Dashboard\nChọn Device → Chọn Actuator"] --> B["POST /api/actuator/control\n{deviceId, actuatorType, action,\ndurationMinutes}"]
-    B --> C["📤 Publish MQTT:\ndevices/{MAC}/control\n{actuator, action}"]
-    C --> D["🔌 ESP32 nhận\n→ Bật relay bơm/quạt/đèn"]
-    C --> E["📝 Lưu ActuatorLog"]
-    D --> F["📊 Dashboard hiển thị\ntrạng thái mới"]
-    E --> F
-```
-
 ---
-
-## SLIDE 30-31 — HẠN CHẾ & HƯỚNG PHÁT TRIỂN (LIMITATIONS)
 
 ### Hạn chế hiện tại
 

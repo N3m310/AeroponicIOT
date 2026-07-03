@@ -577,16 +577,17 @@ main {
 
 /* Alerts */
 .alerts-list {
-    max-height: 300px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .alert-item {
-    padding: 0.75rem;
+    padding: 0.6rem 0.75rem;
     border-left: 4px solid;
-    margin-bottom: 0.5rem;
     background: #f8f9fa;
     border-radius: 4px;
+    line-height: 1.4;
 }
 
 .alert-warning {
@@ -602,19 +603,22 @@ main {
 }
 
 .alert-title {
-    font-weight: bold;
-    margin-bottom: 0.25rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
 }
 
 .alert-message {
-    font-size: 0.9rem;
-    color: #666;
+    font-size: 0.85rem;
+    color: #555;
+    word-break: break-word;
+    line-height: 1.35;
 }
 
 .alert-timestamp {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #999;
-    margin-top: 0.25rem;
+    margin-top: 0.3rem;
 }
 
 /* Manual Control */
