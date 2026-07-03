@@ -36,12 +36,31 @@ function checkAuthentication() {
     document.getElementById('goGardensBtn').addEventListener('click', () => window.location.href = 'gardens.html');
     document.getElementById('logoutBtn').addEventListener('click', logout);
 
+    // Hide crop edit form section for non-Admin
+    const formSection = document.querySelector('.form-section');
+    if (formSection) {
+        formSection.style.display = isAdmin ? 'block' : 'none';
+    }
 }
 
 function setupEventListeners() {
     document.getElementById('cropForm').addEventListener('submit', saveCrop);
     document.getElementById('addStageBtn').addEventListener('click', () => addStageCard());
     document.getElementById('resetCropFormBtn').addEventListener('click', resetCropForm);
+
+    // Close crop stages modal
+    const stagesModal = document.getElementById('cropStagesModal');
+    const stagesModalClose = document.getElementById('cropStagesModalClose');
+    if (stagesModalClose) {
+        stagesModalClose.addEventListener('click', () => {
+            stagesModal.style.display = 'none';
+        });
+    }
+    window.addEventListener('click', (event) => {
+        if (event.target === stagesModal) {
+            stagesModal.style.display = 'none';
+        }
+    });
 }
 
 function getAuthHeaders() {
@@ -69,14 +88,30 @@ async function loadCrops() {
 function renderCrops() {
     const grid = document.getElementById('cropsGrid');
     if (!crops.length) {
-        grid.innerHTML = '<p class="no-devices">Chưa có cây trồng nào. Hãy tạo cây trồng đầu tiên với các giai đoạn chu kỳ.</p>';
+        grid.innerHTML = '<p class="no-devices">Chưa có cây trồng nào.</p>';
         return;
     }
+
+    const role = localStorage.getItem('role');
+    const isAdmin = typeof role === 'string' && role.trim().toLowerCase() === 'administrator';
 
     grid.innerHTML = '';
     crops.forEach(crop => {
         const card = document.createElement('div');
         card.className = 'crop-card';
+
+        const actionButtons = isAdmin ? `
+            <div class="card-actions">
+                <button class="btn-small edit" type="button" onclick="editCrop(${crop.id})">✏️ Sửa</button>
+                <button class="btn-small delete" type="button" onclick="deleteCrop(${crop.id}, '${escapeJs(crop.name)}')">🗑️ Xóa</button>
+                <button class="btn-small" type="button" style="background: #10b981; color: white;" onclick="viewCropStages(${crop.id})">🔍 Xem chu kỳ</button>
+            </div>
+        ` : `
+            <div class="card-actions">
+                <button class="btn-small" type="button" style="background: #10b981; color: white; width: 100%;" onclick="viewCropStages(${crop.id})">🔍 Xem chu kỳ</button>
+            </div>
+        `;
+
         card.innerHTML = `
             <h3>${crop.name}</h3>
             <div class="crop-meta">
@@ -84,10 +119,7 @@ function renderCrops() {
                 <div><strong>Số giai đoạn:</strong> ${crop.stageCount}</div>
                 <div><strong>Mô tả:</strong> ${crop.description || 'Không có mô tả'}</div>
             </div>
-            <div class="card-actions">
-                <button class="btn-small edit" type="button" onclick="editCrop(${crop.id})">✏️ Sửa</button>
-                <button class="btn-small delete" type="button" onclick="deleteCrop(${crop.id}, '${escapeJs(crop.name)}')">🗑️ Xóa</button>
-            </div>
+            ${actionButtons}
         `;
         grid.appendChild(card);
     });
@@ -398,4 +430,46 @@ function escapeHtml(value) {
 
 function escapeJs(value) {
     return String(value).replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+}
+
+function viewCropStages(cropId) {
+    fetch(`${API_BASE}/crop/${cropId}`, { headers: getAuthHeaders() })
+        .then(response => {
+            if (!response.ok) throw new Error('Không thể tải chi tiết chu kỳ');
+            return response.json();
+        })
+        .then(json => {
+            const crop = Auth.unwrapApiData(json);
+            if (!crop) return;
+
+            document.getElementById('cropStagesModalTitle').innerHTML = `🌿 Chu kỳ sinh trưởng: <span style="color: #10b981;">${escapeHtml(crop.name)}</span>`;
+
+            const container = document.getElementById('cropStagesModalContent');
+            if (crop.stages && crop.stages.length > 0) {
+                container.innerHTML = crop.stages.map((stage, idx) => `
+                    <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; border-left: 5px solid #10b981;">
+                        <h4 style="margin-bottom: 0.75rem; color: #047857; font-size: 1.1rem; display: flex; justify-content: space-between; margin-top: 0;">
+                            <span>Giai đoạn ${idx + 1}: ${escapeHtml(stage.stageName)}</span>
+                            <span style="font-size: 0.9rem; color: var(--text-light); font-weight: normal;">Ngày ${stage.dayStart} - ${stage.dayEnd}</span>
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; font-size: 0.95rem; color: var(--text-color);">
+                            <div>🧪 <strong>pH:</strong> ${stage.phMin ?? '-'} - ${stage.phMax ?? '-'}</div>
+                            <div>🧂 <strong>PPM:</strong> ${stage.ppmMin ?? '-'} - ${stage.ppmMax ?? '-'} ppm</div>
+                            <div>🌡 <strong>Nhiệt độ nước:</strong> ${stage.waterTempMin ?? '-'} - ${stage.waterTempMax ?? '-'} °C</div>
+                            <div>💧 <strong>Độ ẩm không khí:</strong> ${stage.humidityMin ?? '-'} - ${stage.humidityMax ?? '-'} %</div>
+                            <div>🔌 <strong>Chu kỳ bơm:</strong> Bật ${stage.pumpOnMinutes ?? '-'} phút / Tắt ${stage.pumpOffMinutes ?? '-'} phút</div>
+                            <div>☀ <strong>Ánh sáng:</strong> ${stage.lightMin ?? '-'} - ${stage.lightMax ?? '-'} lx</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-light);">Cây trồng này chưa được thiết lập giai đoạn chu kỳ.</p>';
+            }
+
+            document.getElementById('cropStagesModal').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error showing crop stages:', error);
+            showError('Không thể tải chi tiết chu kỳ');
+        });
 }

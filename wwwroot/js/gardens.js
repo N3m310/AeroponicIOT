@@ -5,16 +5,67 @@ let crops = [];
 let userRole = 'Farmer';
 let isAdmin = false;
 
+let farmers = [];
+
 document.addEventListener('DOMContentLoaded', () => {
     if (!checkAuthentication()) {
         return;
     }
     setupEventListeners();
     resetGardenForm();
+    loadFarmers();
     loadCrops().then(() => {
         loadGardens();
     });
 });
+
+async function loadFarmers() {
+    if (!isAdmin) {
+        const list = document.getElementById('gardenOwnersList');
+        if (list) {
+            const fg = list.closest('.form-group');
+            if (fg) fg.style.display = 'none';
+        }
+        return;
+    }
+    try {
+        const response = await fetch(`${API_BASE}/users`, { headers: getAuthHeaders() });
+        if (response.status === 401) {
+            logout();
+            return;
+        }
+        if (!response.ok) throw new Error('Không thể tải danh sách tài khoản');
+
+        const json = await response.json();
+        const allUsers = Auth.unwrapApiData(json) || [];
+        farmers = allUsers.filter(u => u.role === 'Farmer');
+        renderFarmersList();
+    } catch (error) {
+        console.error('Error loading farmers:', error);
+        const list = document.getElementById('gardenOwnersList');
+        if (list) {
+            list.innerHTML = '<p style="color: red; margin: 0; font-size: 0.9rem;">Lỗi tải danh sách Farmer</p>';
+        }
+    }
+}
+
+function renderFarmersList(checkedIds = []) {
+    const list = document.getElementById('gardenOwnersList');
+    if (!list) return;
+    if (!farmers.length) {
+        list.innerHTML = '<p style="color: #666; margin: 0; font-size: 0.9rem;">Không có tài khoản Farmer nào</p>';
+        return;
+    }
+    list.innerHTML = farmers.map(farmer => {
+        const isChecked = checkedIds.includes(farmer.id);
+        return `
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; margin: 0;">
+                <input type="checkbox" name="gardenOwner" value="${farmer.id}" ${isChecked ? 'checked' : ''} style="cursor: pointer; margin: 0;">
+                <span>${escapeHtml(farmer.username)} (${escapeHtml(farmer.email || 'Không có email')})</span>
+            </label>
+        `;
+    }).join('');
+}
 
 async function loadCrops() {
     try {
@@ -74,12 +125,22 @@ function checkAuthentication() {
     document.getElementById('goCropsBtn').addEventListener('click', () => window.location.href = 'crops.html');
     document.getElementById('logoutBtn').addEventListener('click', logout);
 
+    // Show/hide form section based on role
+    const formSection = document.querySelector('.form-section');
+    if (formSection) {
+        if (!isAdmin) {
+            formSection.style.display = 'none';
+        } else {
+            formSection.style.display = 'block';
+        }
+    }
+
     // Show/hide admin notices
     const adminNotice = document.getElementById('adminNotice');
     if (adminNotice) {
         if (!isAdmin) {
             adminNotice.style.display = 'inline-block';
-            adminNotice.textContent = '🔒 Chế độ xem & Thêm mới (Chỉ quản trị viên mới được sửa/xóa)';
+            adminNotice.textContent = '🔒 Chế độ xem (Chỉ quản trị viên mới được sửa/xóa/tạo)';
         } else {
             adminNotice.style.display = 'none';
         }
@@ -138,11 +199,16 @@ function renderGardens() {
             `;
         }
 
+        const ownersText = garden.ownerNames && garden.ownerNames.length > 0 
+            ? garden.ownerNames.join(', ') 
+            : 'Chưa gán người sở hữu';
+
         card.innerHTML = `
             <div>
                 <h3>${escapeHtml(garden.name)}</h3>
                 <div class="garden-meta">
                     <div><strong>📍 Vị trí:</strong> ${escapeHtml(garden.location || 'Chưa thiết lập')}</div>
+                    <div><strong>👥 Người sở hữu:</strong> ${escapeHtml(ownersText)}</div>
                     <div><strong>🌿 Cây trồng:</strong> ${escapeHtml(garden.cropName || 'Chưa gán')}</div>
                     <div><strong>🔧 Số thiết bị liên kết:</strong> ${garden.deviceCount} thiết bị</div>
                     <div><strong>📝 Mô tả:</strong> ${escapeHtml(garden.description || 'Không có mô tả')}</div>
@@ -174,6 +240,7 @@ async function editGarden(gardenId) {
         document.getElementById('gardenLocation').value = garden.location || '';
         document.getElementById('gardenCropSelect').value = garden.currentCropId || '';
         document.getElementById('gardenDescription').value = garden.description || '';
+        renderFarmersList(garden.ownerIds || []);
 
         document.getElementById('formTitle').textContent = 'Chỉnh sửa khu vườn';
         document.getElementById('submitBtn').textContent = 'Cập nhật khu vườn';
@@ -199,11 +266,15 @@ async function saveGarden(e) {
         return;
     }
 
+    const ownerCheckboxes = document.querySelectorAll('input[name="gardenOwner"]:checked');
+    const ownerIds = Array.from(ownerCheckboxes).map(cb => parseInt(cb.value, 10));
+
     const payload = {
         name,
         location: location || null,
         currentCropId: currentCropId,
-        description: description || null
+        description: description || null,
+        ownerIds: ownerIds
     };
 
     const isEditing = !!id;
@@ -289,6 +360,7 @@ function resetGardenForm() {
     document.getElementById('gardenId').value = '';
     document.getElementById('formTitle').textContent = 'Tạo khu vườn mới';
     document.getElementById('submitBtn').textContent = 'Lưu khu vườn';
+    renderFarmersList([]);
 }
 
 function showSuccess(message) {

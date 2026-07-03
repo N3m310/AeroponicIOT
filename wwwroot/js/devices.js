@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCrops();
     loadGardens();
     loadDevices();
-    loadPendingDevices();
+    if (document.getElementById('pendingDevicesGrid')) {
+        loadPendingDevices();
+    }
     setupEventListeners();
 });
 
@@ -60,8 +62,12 @@ function getAuthHeaders() {
 function setupEventListeners() {
     document.getElementById('addDeviceForm').addEventListener('submit', createDevice);
     document.getElementById('editDeviceForm').addEventListener('submit', updateDevice);
-    document.getElementById('claimDeviceForm').addEventListener('submit', claimDevice);
-    document.getElementById('refreshPendingBtn').addEventListener('click', loadPendingDevices);
+    
+    const claimForm = document.getElementById('claimDeviceForm');
+    if (claimForm) claimForm.addEventListener('submit', claimDevice);
+    
+    const refreshPending = document.getElementById('refreshPendingBtn');
+    if (refreshPending) refreshPending.addEventListener('click', loadPendingDevices);
 }
 
 // Load crops
@@ -114,6 +120,7 @@ function populateCropSelects() {
     const select3 = document.getElementById('claimCropSelect');
 
     [select1, select2, select3].forEach(select => {
+        if (!select) return;
         select.innerHTML = '<option value="">Chưa gán cây trồng</option>';
         crops.forEach(crop => {
             const option = document.createElement('option');
@@ -124,17 +131,33 @@ function populateCropSelects() {
     });
 }
 
-function populateGardenSelects() {
+function populateGardenSelects(currentDeviceGardenId = null) {
     const select1 = document.getElementById('gardenSelect');
     const select2 = document.getElementById('editGardenSelect');
     const select3 = document.getElementById('claimGardenSelect');
 
-    [select1, select2, select3].forEach(select => {
-        select.innerHTML = '<option value="">Chưa gán khu vườn</option>';
+    if (select1) {
+        select1.innerHTML = '<option value="">Tất cả khu vườn</option>';
         gardens.forEach(garden => {
             const option = document.createElement('option');
             option.value = garden.id;
             option.textContent = garden.name;
+            select1.appendChild(option);
+        });
+    }
+
+    [select2, select3].forEach(select => {
+        if (!select) return;
+        select.innerHTML = '<option value="">Chưa gán khu vườn</option>';
+        gardens.forEach(garden => {
+            const option = document.createElement('option');
+            option.value = garden.id;
+            if (garden.deviceCount > 0 && garden.id !== currentDeviceGardenId) {
+                option.textContent = `${garden.name} (Đã có thiết bị)`;
+                option.disabled = true;
+            } else {
+                option.textContent = garden.name;
+            }
             select.appendChild(option);
         });
     });
@@ -394,6 +417,10 @@ async function openEditModal(deviceId) {
     editingDeviceId = deviceId;
     document.getElementById('editDeviceId').value = deviceId;
     document.getElementById('editDeviceName').value = device.name;
+    
+    // Populate gardens for edit dropdown, enabling current device's garden
+    populateGardenSelects(device.gardenId);
+
     document.getElementById('editCropSelect').value = device.currentCropId || '';
     document.getElementById('editGardenSelect').value = device.gardenId || '';
     document.getElementById('editStatus').value = device.status || 'Active';
@@ -405,6 +432,8 @@ async function openEditModal(deviceId) {
 function closeEditModal() {
     document.getElementById('editModal').style.display = 'none';
     editingDeviceId = null;
+    // Reset garden selects to normal state
+    populateGardenSelects();
 }
 
 // Update device

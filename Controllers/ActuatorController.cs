@@ -52,7 +52,19 @@ public class ActuatorController : ControllerBase
 
             if (!currentUser.IsAdministrator)
             {
-                if (!currentUser.UserId.HasValue || device.UserId != currentUser.UserId.Value)
+                if (!currentUser.UserId.HasValue)
+                {
+                    return Forbid();
+                }
+
+                var hasAccess = device.UserId == currentUser.UserId.Value;
+                if (!hasAccess && device.GardenId.HasValue)
+                {
+                    hasAccess = await _context.Gardens
+                        .AnyAsync(g => g.Id == device.GardenId.Value && g.Owners.Any(o => o.Id == currentUser.UserId.Value));
+                }
+
+                if (!hasAccess)
                 {
                     _logger.LogWarning("Unauthorized actuator control attempt by user {UserId} on device {DeviceId}", currentUser.UserId, device.Id);
                     return Forbid();

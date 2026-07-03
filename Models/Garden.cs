@@ -33,5 +33,6 @@ public class Garden
 
     // Navigation properties
     public ICollection<Device> Devices { get; set; } = new List<Device>();
+    public ICollection<User> Owners { get; set; } = new List<User>();
 }
 

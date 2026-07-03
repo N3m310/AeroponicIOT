@@ -76,6 +76,18 @@ document.addEventListener('DOMContentLoaded', function () {
     if (addDeviceBtn) addDeviceBtn.addEventListener('click', openAddDeviceModal);
     if (addDeviceModalClose) addDeviceModalClose.addEventListener('click', closeAddDeviceModal);
     if (addDeviceForm) addDeviceForm.addEventListener('submit', handleAddDevice);
+
+    const viewOwnersBtn = document.getElementById('viewOwnersBtn');
+    const ownersModalClose = document.getElementById('ownersModalClose');
+    if (viewOwnersBtn) viewOwnersBtn.addEventListener('click', showGardenOwners);
+    if (ownersModalClose) ownersModalClose.addEventListener('click', closeOwnersModal);
+
+    window.addEventListener('click', function (event) {
+        const ownersModal = document.getElementById('ownersModal');
+        if (event.target === ownersModal) {
+            closeOwnersModal();
+        }
+    });
 });
 
 // Bind nav buttons defensively (works even if inline onclick handlers are blocked)
@@ -118,30 +130,16 @@ function checkAuthentication() {
     if (healthBtn) {
         healthBtn.hidden = !currentUserIsAdmin;
     }
+    const addGardenBtn = document.getElementById('addGardenBtn');
+    if (addGardenBtn) {
+        addGardenBtn.hidden = !currentUserIsAdmin;
+    }
 
     // Create user info element
     const headerControls = document.querySelector('.header-controls');
     const userInfo = document.createElement('div');
     userInfo.className = 'user-info';
     userInfo.innerHTML = `
-        <div class="notification-bell">
-            <button id="notificationBell" class="bell-button">
-                🔔
-                <span id="notificationBadge" class="notification-badge" style="display:none;">0</span>
-            </button>
-            <button id="soundToggle" class="sound-toggle" title="Bật/Tắt âm thanh thông báo">
-                ${soundEnabled ? '🔊' : '🔇'}
-            </button>
-            <div id="notificationDropdown" class="notification-dropdown" style="display:none;">
-                <div class="notification-header">
-                    <h3>Thông báo</h3>
-                    <button id="clearNotificationsBtn" class="clear-btn">Xóa tất cả</button>
-                </div>
-                <div id="notificationsList" class="notifications-list">
-                    <p class="no-notifications">Không có thông báo mới</p>
-                </div>
-            </div>
-        </div>
         <span>${username} <small>(${role})</small></span>
         <button id="profileBtn" class="btn-secondary">👤 Tài khoản</button>
         <button id="logoutBtn" class="btn-secondary">Đăng xuất</button>
@@ -150,16 +148,7 @@ function checkAuthentication() {
 
     ensureProfileModal();
 
-    // Load notifications
-    loadNotifications();
-    setInterval(loadNotifications, 10000); // Check every 10 seconds
-
-    // Notification bell click handler
-    document.getElementById('notificationBell').addEventListener('click', toggleNotificationDropdown);
-    document.getElementById('clearNotificationsBtn').addEventListener('click', clearAllNotifications);
-    document.getElementById('soundToggle').addEventListener('click', toggleNotificationSound);
     document.getElementById('profileBtn').addEventListener('click', openProfileModal);
-
     document.getElementById('logoutBtn').addEventListener('click', logout);
 }
 
@@ -371,7 +360,7 @@ function getAuthHeaders() {
 }
 
 // Event listeners
-refreshBtn.addEventListener('click', loadDashboardData);
+if (refreshBtn) refreshBtn.addEventListener('click', loadDashboardData);
 closeModal.addEventListener('click', () => deviceModal.style.display = 'none');
 gardenModalClose?.addEventListener('click', closeGardenModal);
 addGardenBtn?.addEventListener('click', openGardenModal);
@@ -406,19 +395,24 @@ async function openAddDeviceModal() {
     if (!addDeviceModal) return;
     addDeviceModal.style.display = 'block';
 
-    // Populate gardens select
-    if (newDeviceGarden) {
-        newDeviceGarden.innerHTML = '<option value="">-- Chọn khu vườn --</option>';
-        gardens.forEach(garden => {
-            const opt = document.createElement('option');
-            opt.value = garden.id;
-            opt.textContent = garden.name;
-            if (selectedGardenId === String(garden.id)) {
-                opt.selected = true;
-            }
-            newDeviceGarden.appendChild(opt);
-        });
-    }
+     // Populate gardens select
+     if (newDeviceGarden) {
+         newDeviceGarden.innerHTML = '<option value="">-- Chọn khu vườn --</option>';
+         gardens.forEach(garden => {
+             const opt = document.createElement('option');
+             opt.value = garden.id;
+             if (garden.deviceCount > 0) {
+                 opt.textContent = `${garden.name} (Đã có thiết bị)`;
+                 opt.disabled = true;
+             } else {
+                 opt.textContent = garden.name;
+             }
+             if (selectedGardenId === String(garden.id) && garden.deviceCount === 0) {
+                 opt.selected = true;
+             }
+             newDeviceGarden.appendChild(opt);
+         });
+     }
 
     // Populate devices select from database
     if (deviceSelectDropdown) {
@@ -665,6 +659,23 @@ async function loadDashboardData() {
         const data = Auth.unwrapApiData(await response.json());
         updateDashboard(data);
         updateLastUpdate();
+
+        // Hide "+ Thêm thiết bị" button if selected garden already has a device
+        const activeGarden = gardens.find(g => String(g.id) === selectedGardenId);
+        const addDeviceBtn = document.getElementById('addDeviceBtn');
+        if (addDeviceBtn && currentUserIsAdmin) {
+            addDeviceBtn.hidden = !!(activeGarden && activeGarden.deviceCount > 0);
+        }
+
+        // Show/hide viewOwnersBtn based on active garden selection
+        const viewOwnersBtn = document.getElementById('viewOwnersBtn');
+        if (viewOwnersBtn) {
+            if (activeGarden) {
+                viewOwnersBtn.style.display = 'inline-block';
+            } else {
+                viewOwnersBtn.style.display = 'none';
+            }
+        }
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showError('Không thể tải dữ liệu bảng điều khiển');
@@ -676,9 +687,9 @@ function updateDashboard(data) {
     dashboardDevices = data.devices || [];
 
     // Update overview stats
-    totalDevices.textContent = data.totalDevices;
-    activeDevices.textContent = data.activeDevices;
-    activeAlerts.textContent = data.activeAlerts.length;
+    if (totalDevices) totalDevices.textContent = data.totalDevices;
+    if (activeDevices) activeDevices.textContent = data.activeDevices;
+    if (activeAlerts) activeAlerts.textContent = data.activeAlerts.length;
 
     // Update devices
     updateDevices(data.devices);
@@ -813,11 +824,7 @@ function createDeviceCard(device) {
     }
     const lastSeen = ls ? new Date(ls).toLocaleString('vi-VN') : 'Chưa bao giờ';
 
-    const actionsHtml = currentUserIsAdmin ? `
-        <div class="device-actions">
-            <button class="btn-secondary" onclick="openDeviceEditModal(${device.id})">Sửa nhanh</button>
-        </div>
-    ` : '';
+    const actionsHtml = '';
 
     card.innerHTML = `
         <div class="device-header">
@@ -828,7 +835,6 @@ function createDeviceCard(device) {
         <div class="device-mac">MAC: ${device.macAddress}</div>
         <div class="device-crop">Khu vườn: ${device.gardenName || 'Chưa gán'}</div>
         <div class="device-crop">Cây trồng: ${device.cropName || 'Chưa gán'}</div>
-        <div>Lần cuối online: ${lastSeen}</div>
         ${sensorHtml}
         ${actionsHtml}
     `;
@@ -1004,7 +1010,11 @@ function buildDeviceEditForm(device) {
 
     const gardenOptions = [
         '<option value="">Chưa gán khu vườn</option>',
-        ...gardens.map(garden => `<option value="${garden.id}" ${device.gardenId === garden.id ? 'selected' : ''}>${garden.name}</option>`)
+        ...gardens.map(garden => {
+            const isSelected = device.gardenId === garden.id;
+            const isDisabled = garden.deviceCount > 0 && !isSelected;
+            return `<option value="${garden.id}" ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}>${garden.name}${isDisabled ? ' (Đã có thiết bị)' : ''}</option>`;
+        })
     ].join('');
 
     return `
@@ -1237,7 +1247,9 @@ async function handleQuickDeviceUpdate(e) {
 
 // Utility functions
 function updateLastUpdate() {
-    lastUpdate.textContent = `Cập nhật lần cuối: ${new Date().toLocaleString('vi-VN')}`;
+    if (lastUpdate) {
+        lastUpdate.textContent = `Cập nhật lần cuối: ${new Date().toLocaleString('vi-VN')}`;
+    }
 }
 
 function showSuccess(message) {
@@ -1316,4 +1328,57 @@ function goToGardens() {
 
 function isAdministratorRole(role) {
     return typeof role === 'string' && role.trim().toLowerCase() === 'administrator';
+}
+
+function showGardenOwners() {
+    const activeGarden = gardens.find(g => String(g.id) === selectedGardenId);
+    if (!activeGarden) {
+        showError('Không tìm thấy thông tin khu vườn');
+        return;
+    }
+
+    const titleEl = document.getElementById('ownersModalTitle');
+    if (titleEl) {
+        titleEl.innerHTML = `👥 Chủ sở hữu vườn <br><span style="font-size: 1.1rem; color: #10b981; margin-top: 0.25rem;">${escapeHtml(activeGarden.name)}</span>`;
+    }
+
+    const contentEl = document.getElementById('ownersModalContent');
+    if (contentEl) {
+        if (activeGarden.ownerNames && activeGarden.ownerNames.length > 0) {
+            contentEl.innerHTML = activeGarden.ownerNames.map(name => `
+                <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-left: 4px solid #10b981;">
+                    <span style="font-size: 1.2rem;">👤</span>
+                    <strong style="color: var(--text-primary);">${escapeHtml(name)}</strong>
+                </div>
+            `).join('');
+        } else {
+            contentEl.innerHTML = `
+                <div style="text-align: center; color: var(--text-secondary); padding: 1rem;">
+                    Chưa gán người sở hữu nào cho khu vườn này.
+                </div>
+            `;
+        }
+    }
+
+    const modal = document.getElementById('ownersModal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+function closeOwnersModal() {
+    const modal = document.getElementById('ownersModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }

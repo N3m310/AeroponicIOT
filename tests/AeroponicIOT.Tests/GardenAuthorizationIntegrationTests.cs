@@ -23,12 +23,15 @@ public class GardenAuthorizationIntegrationTests : IClassFixture<TestWebApplicat
     {
         await ResetDatabaseAsync(db =>
         {
-            db.Users.AddRange(
-                new User { Id = 1, Username = "farmer-1", Email = "farmer1@test.local", PasswordHash = "hash", Role = "Farmer", CreatedAt = DateTime.UtcNow },
-                new User { Id = 2, Username = "farmer-2", Email = "farmer2@test.local", PasswordHash = "hash", Role = "Farmer", CreatedAt = DateTime.UtcNow },
-                new User { Id = 99, Username = "admin", Email = "admin@test.local", PasswordHash = "hash", Role = "Administrator", CreatedAt = DateTime.UtcNow });
+            var farmer1 = new User { Id = 1, Username = "farmer-1", Email = "farmer1@test.local", PasswordHash = "hash", Role = "Farmer", CreatedAt = DateTime.UtcNow };
+            var farmer2 = new User { Id = 2, Username = "farmer-2", Email = "farmer2@test.local", PasswordHash = "hash", Role = "Farmer", CreatedAt = DateTime.UtcNow };
+            var admin = new User { Id = 99, Username = "admin", Email = "admin@test.local", PasswordHash = "hash", Role = "Administrator", CreatedAt = DateTime.UtcNow };
 
-            db.Gardens.Add(new Garden { Id = 1, Name = "Main Garden", CreatedAt = DateTime.UtcNow });
+            db.Users.AddRange(farmer2, admin); // farmer1 is added implicitly via garden.Owners
+
+            var garden = new Garden { Id = 1, Name = "Main Garden", CreatedAt = DateTime.UtcNow };
+            garden.Owners.Add(farmer1); // Farmer 1 is the owner
+            db.Gardens.Add(garden);
 
             db.Devices.AddRange(
                 new Device { Id = 1, DeviceName = "Owned-1", MacAddress = "AA:BB:CC:DD:EE:21", UserId = 1, GardenId = 1, Status = "Active", CreatedAt = DateTime.UtcNow, LastSeen = DateTime.UtcNow },
@@ -44,8 +47,32 @@ public class GardenAuthorizationIntegrationTests : IClassFixture<TestWebApplicat
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
         var data = payload.GetProperty("data");
-        Assert.Equal(1, data.GetArrayLength());
-        Assert.Equal(1, data[0].GetProperty("id").GetInt32());
+        Assert.Equal(2, data.GetArrayLength()); // Farmer sees all devices in their owned garden
+    }
+
+    [Fact]
+    public async Task GetGardenDevicesForbiddenForUnownedGarden()
+    {
+        await ResetDatabaseAsync(db =>
+        {
+            var farmer1 = new User { Id = 1, Username = "farmer-1", Email = "farmer1@test.local", PasswordHash = "hash", Role = "Farmer", CreatedAt = DateTime.UtcNow };
+            var farmer2 = new User { Id = 2, Username = "farmer-2", Email = "farmer2@test.local", PasswordHash = "hash", Role = "Farmer", CreatedAt = DateTime.UtcNow };
+            
+            db.Users.Add(farmer2); // farmer1 is added implicitly via garden.Owners
+
+            var garden = new Garden { Id = 1, Name = "Main Garden", CreatedAt = DateTime.UtcNow };
+            garden.Owners.Add(farmer1); // Only Farmer 1 owns it
+            db.Gardens.Add(garden);
+
+            db.Devices.Add(new Device { Id = 1, DeviceName = "Owned-1", MacAddress = "AA:BB:CC:DD:EE:21", UserId = 1, GardenId = 1, Status = "Active", CreatedAt = DateTime.UtcNow, LastSeen = DateTime.UtcNow });
+        });
+
+        using var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-UserId", "2"); // Farmer 2 tries to access
+        client.DefaultRequestHeaders.Add("X-Test-Role", "Farmer");
+
+        var response = await client.GetAsync("/api/garden/1/devices");
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
@@ -76,18 +103,8 @@ public class GardenAuthorizationIntegrationTests : IClassFixture<TestWebApplicat
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        db.SensorLogs.RemoveRange(db.SensorLogs);
-        db.ActuatorLogs.RemoveRange(db.ActuatorLogs);
-        db.Alerts.RemoveRange(db.Alerts);
-        db.AutomationRules.RemoveRange(db.AutomationRules);
-        db.Notifications.RemoveRange(db.Notifications);
-        db.Devices.RemoveRange(db.Devices);
-        db.CropStages.RemoveRange(db.CropStages);
-        db.Crops.RemoveRange(db.Crops);
-        db.Gardens.RemoveRange(db.Gardens);
-        db.Users.RemoveRange(db.Users);
-
-        await db.SaveChangesAsync();
+        await db.Database.EnsureDeletedAsync();
+        await db.Database.EnsureCreatedAsync();
 
         seed(db);
         await db.SaveChangesAsync();

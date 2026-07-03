@@ -32,10 +32,23 @@ public class GardenController : ControllerBase
     {
         try
         {
-            var gardens = await _context.Gardens
+            var currentUser = _currentUserService.GetCurrentUser();
+
+            IQueryable<Garden> query = _context.Gardens
                 .Include(g => g.Devices)
                 .Include(g => g.CurrentCrop)
-                .ToListAsync();
+                .Include(g => g.Owners);
+
+            if (!currentUser.IsAdministrator)
+            {
+                if (!currentUser.UserId.HasValue)
+                {
+                    return ApiProblem(StatusCodes.Status401Unauthorized, "Unauthorized", "User not authenticated");
+                }
+                query = query.Where(g => g.Owners.Any(o => o.Id == currentUser.UserId.Value));
+            }
+
+            var gardens = await query.ToListAsync();
 
             var dtos = gardens.Select(g => new GardenDto
             {
@@ -46,7 +59,9 @@ public class GardenController : ControllerBase
                 CreatedAt = g.CreatedAt,
                 DeviceCount = g.Devices?.Count ?? 0,
                 CurrentCropId = g.CurrentCropId,
-                CropName = g.CurrentCrop?.Name
+                CropName = g.CurrentCrop?.Name,
+                OwnerIds = g.Owners.Select(o => o.Id).ToList(),
+                OwnerNames = g.Owners.Select(o => o.Username ?? string.Empty).ToList()
             }).ToList();
 
             return Ok(ApiResponse.Success(dtos, "Gardens retrieved"));
@@ -63,14 +78,25 @@ public class GardenController : ControllerBase
     {
         try
         {
+            var currentUser = _currentUserService.GetCurrentUser();
+
             var garden = await _context.Gardens
                 .Include(g => g.Devices)
                 .Include(g => g.CurrentCrop)
+                .Include(g => g.Owners)
                 .FirstOrDefaultAsync(g => g.Id == id);
 
             if (garden == null)
             {
                 return ApiProblem(StatusCodes.Status404NotFound, "Not Found", "Garden not found");
+            }
+
+            if (!currentUser.IsAdministrator)
+            {
+                if (!currentUser.UserId.HasValue || !garden.Owners.Any(o => o.Id == currentUser.UserId.Value))
+                {
+                    return Forbid();
+                }
             }
 
             var dto = new GardenDto
@@ -82,7 +108,9 @@ public class GardenController : ControllerBase
                 CreatedAt = garden.CreatedAt,
                 DeviceCount = garden.Devices?.Count ?? 0,
                 CurrentCropId = garden.CurrentCropId,
-                CropName = garden.CurrentCrop?.Name
+                CropName = garden.CurrentCrop?.Name,
+                OwnerIds = garden.Owners.Select(o => o.Id).ToList(),
+                OwnerNames = garden.Owners.Select(o => o.Username ?? string.Empty).ToList()
             };
 
             return Ok(ApiResponse.Success(dto, "Garden retrieved"));
@@ -113,6 +141,15 @@ public class GardenController : ControllerBase
                 CreatedAt = DateTime.UtcNow
             };
 
+            if (dto.OwnerIds != null && dto.OwnerIds.Count > 0)
+            {
+                var users = await _context.Users.Where(u => dto.OwnerIds.Contains(u.Id)).ToListAsync();
+                foreach (var user in users)
+                {
+                    garden.Owners.Add(user);
+                }
+            }
+
             _context.Gardens.Add(garden);
             await _context.SaveChangesAsync();
 
@@ -140,7 +177,7 @@ public class GardenController : ControllerBase
     {
         try
         {
-            var garden = await _context.Gardens.FindAsync(id);
+            var garden = await _context.Gardens.Include(g => g.Owners).FirstOrDefaultAsync(g => g.Id == id);
             if (garden == null)
             {
                 return ApiProblem(StatusCodes.Status404NotFound, "Not Found", "Garden not found");
@@ -151,6 +188,17 @@ public class GardenController : ControllerBase
             garden.Location = dto.Location;
             garden.Description = dto.Description;
             garden.CurrentCropId = dto.CurrentCropId;
+
+            // Sync owners
+            garden.Owners.Clear();
+            if (dto.OwnerIds != null && dto.OwnerIds.Count > 0)
+            {
+                var users = await _context.Users.Where(u => dto.OwnerIds.Contains(u.Id)).ToListAsync();
+                foreach (var user in users)
+                {
+                    garden.Owners.Add(user);
+                }
+            }
 
             _context.Gardens.Update(garden);
             await _context.SaveChangesAsync();
@@ -225,23 +273,23 @@ public class GardenController : ControllerBase
     {
         try
         {
-            var exists = await _context.Gardens.AnyAsync(g => g.Id == id);
-            if (!exists)
+            var currentUser = _currentUserService.GetCurrentUser();
+
+            var garden = await _context.Gardens.Include(g => g.Owners).FirstOrDefaultAsync(g => g.Id == id);
+            if (garden == null)
             {
                 return ApiProblem(StatusCodes.Status404NotFound, "Not Found", "Garden not found");
             }
 
-            var currentUser = _currentUserService.GetCurrentUser();
-
-            var devicesQuery = _context.Devices.Where(d => d.GardenId == id).Include(d => d.Crop).AsQueryable();
             if (!currentUser.IsAdministrator)
             {
-                if (!currentUser.UserId.HasValue)
-                    return ApiProblem(StatusCodes.Status401Unauthorized, "Unauthorized", "User not authenticated");
-
-                devicesQuery = devicesQuery.Where(d => d.UserId == currentUser.UserId.Value);
+                if (!currentUser.UserId.HasValue || !garden.Owners.Any(o => o.Id == currentUser.UserId.Value))
+                {
+                    return Forbid();
+                }
             }
 
+            var devicesQuery = _context.Devices.Where(d => d.GardenId == id).Include(d => d.Crop).AsQueryable();
             var devices = await devicesQuery.ToListAsync();
 
             var dtos = devices.Select(d => new DeviceDto

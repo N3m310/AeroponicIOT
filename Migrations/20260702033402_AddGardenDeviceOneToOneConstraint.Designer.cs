@@ -4,6 +4,7 @@ using AeroponicIOT.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AeroponicIOT.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260702033402_AddGardenDeviceOneToOneConstraint")]
+    partial class AddGardenDeviceOneToOneConstraint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -597,21 +600,6 @@ namespace AeroponicIOT.Migrations
                     b.ToTable("users");
                 });
 
-            modelBuilder.Entity("user_gardens", b =>
-                {
-                    b.Property<int>("garden_id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("user_id")
-                        .HasColumnType("int");
-
-                    b.HasKey("garden_id", "user_id");
-
-                    b.HasIndex("user_id");
-
-                    b.ToTable("user_gardens");
-                });
-
             modelBuilder.Entity("AeroponicIOT.Models.ActuatorLog", b =>
                 {
                     b.HasOne("AeroponicIOT.Models.Device", "Device")
@@ -707,21 +695,6 @@ namespace AeroponicIOT.Migrations
                         .IsRequired();
 
                     b.Navigation("Device");
-                });
-
-            modelBuilder.Entity("user_gardens", b =>
-                {
-                    b.HasOne("AeroponicIOT.Models.Garden", null)
-                        .WithMany()
-                        .HasForeignKey("garden_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AeroponicIOT.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("user_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("AeroponicIOT.Models.Crop", b =>

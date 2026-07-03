@@ -45,6 +45,11 @@ public class ApplicationDbContext : DbContext
             .IsUnique()
             .HasFilter("[claim_code] IS NOT NULL");
 
+        modelBuilder.Entity<Device>()
+            .HasIndex(d => d.GardenId)
+            .IsUnique()
+            .HasFilter("[garden_id] IS NOT NULL");
+
         // Configure relationships
         modelBuilder.Entity<Device>()
             .HasOne(d => d.Crop)
@@ -69,6 +74,14 @@ public class ApplicationDbContext : DbContext
             .WithOne(d => d.User)
             .HasForeignKey(d => d.UserId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Garden>()
+            .HasMany(g => g.Owners)
+            .WithMany(u => u.Gardens)
+            .UsingEntity<Dictionary<string, object>>(
+                "user_gardens",
+                j => j.HasOne<User>().WithMany().HasForeignKey("user_id").OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<Garden>().WithMany().HasForeignKey("garden_id").OnDelete(DeleteBehavior.Cascade));
 
         modelBuilder.Entity<CropStage>()
             .HasOne(cs => cs.Crop)

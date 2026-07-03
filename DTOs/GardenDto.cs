@@ -12,5 +12,7 @@ public class GardenDto
     public int DeviceCount { get; set; }
     public int? CurrentCropId { get; set; }
     public string? CropName { get; set; }
+    public List<int> OwnerIds { get; set; } = new();
+    public List<string> OwnerNames { get; set; } = new();
 }
 
