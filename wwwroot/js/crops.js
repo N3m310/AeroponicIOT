@@ -164,8 +164,7 @@ function addStageCard(stage = {}) {
             <div class="form-group"><label>Độ ẩm cao nhất</label><input type="number" data-field="humidityMax" value="${stage.humidityMax ?? ''}"></div>
             <div class="form-group"><label>Ánh sáng tối thiểu (lux)</label><input type="number" data-field="lightMin" min="0" value="${stage.lightMin ?? ''}"></div>
             <div class="form-group"><label>Ánh sáng tối đa (lux)</label><input type="number" data-field="lightMax" min="0" value="${stage.lightMax ?? ''}"></div>
-            <div class="form-group"><label>Bơm bật (phút)</label><input type="number" data-field="pumpOnMinutes" min="1" value="${stage.pumpOnMinutes ?? ''}"></div>
-            <div class="form-group"><label>Bơm tắt (phút)</label><input type="number" data-field="pumpOffMinutes" min="1" value="${stage.pumpOffMinutes ?? ''}"></div>
+
         </div>
     `;
 
@@ -263,9 +262,7 @@ function collectStages() {
             humidityMin: readNumber('humidityMin'),
             humidityMax: readNumber('humidityMax'),
             lightMin: readNumber('lightMin'),
-            lightMax: readNumber('lightMax'),
-            pumpOnMinutes: readNumber('pumpOnMinutes'),
-            pumpOffMinutes: readNumber('pumpOffMinutes')
+            lightMax: readNumber('lightMax')
         };
     });
 }
