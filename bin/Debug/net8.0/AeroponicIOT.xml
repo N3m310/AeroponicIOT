@@ -271,6 +271,30 @@
         <member name="M:AeroponicIOT.Migrations.AddCropStageLightThresholds.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:AeroponicIOT.Migrations.AddGardenDeviceOneToOneConstraint">
+            <inheritdoc />
+        </member>
+        <member name="M:AeroponicIOT.Migrations.AddGardenDeviceOneToOneConstraint.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:AeroponicIOT.Migrations.AddGardenDeviceOneToOneConstraint.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:AeroponicIOT.Migrations.AddGardenDeviceOneToOneConstraint.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:AeroponicIOT.Migrations.AddGardenManyToManyOwners">
+            <inheritdoc />
+        </member>
+        <member name="M:AeroponicIOT.Migrations.AddGardenManyToManyOwners.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:AeroponicIOT.Migrations.AddGardenManyToManyOwners.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:AeroponicIOT.Migrations.AddGardenManyToManyOwners.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="P:AeroponicIOT.Models.Device.ProtocolType">
             <summary>Communication protocol: "wifi" (default) or "zigbee".</summary>
         </member>
